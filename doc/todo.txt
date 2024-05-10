@@ -1,0 +1,3 @@
+Optimization to be done:
+    1. 功能模块中对于错误处理\错误消息发送的函数封装
+    2. 
