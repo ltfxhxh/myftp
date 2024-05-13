@@ -26,7 +26,7 @@ $(CLIENT_BIN): $(CLIENT_SRCS:.c=.o)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(SERVER_BIN) $(CLIENT_BIN)
+	rm -f $(OBJS)
 
 .PHONY: all clean
 

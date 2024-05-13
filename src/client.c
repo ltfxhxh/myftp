@@ -41,16 +41,16 @@ int set_nonblocking(int sockfd) {
 }
 
 void display_welcome_message() {
-    printf(ANSI_COLOR_CYAN ANSI_BOLD_ON "\nWelcome to the Secure Command Interface\n\n" ANSI_BOLD_OFF ANSI_COLOR_RESET);
-    printf(ANSI_COLOR_YELLOW "Please enter one of the following commands ('exit' to quit):\n" ANSI_COLOR_RESET);
+    printf(ANSI_COLOR_CYAN ANSI_BOLD_ON "\n欢迎来到个人服务器\n\n" ANSI_BOLD_OFF ANSI_COLOR_RESET);
+    printf(ANSI_COLOR_YELLOW "请保证您的操作命令在下列命令列表中 (输入'exit'以退出):\n" ANSI_COLOR_RESET);
     printf(ANSI_COLOR_GREEN "------------------------------------------------\n" ANSI_COLOR_RESET);
-    printf(ANSI_COLOR_MAGENTA "ls" ANSI_COLOR_RESET "      - List directory contents\n");
-    printf(ANSI_COLOR_MAGENTA "cd <path>" ANSI_COLOR_RESET " - Change the current directory\n");
-    printf(ANSI_COLOR_MAGENTA "gets <server_filename> <local_filename>" ANSI_COLOR_RESET " - Download a file from the server\n");
-    printf(ANSI_COLOR_MAGENTA "puts <local_filename> <server_filename>" ANSI_COLOR_RESET " - Upload a file to the server\n");
-    printf(ANSI_COLOR_MAGENTA "remove <filename>" ANSI_COLOR_RESET " - Delete a file on the server\n");
-    printf(ANSI_COLOR_MAGENTA "pwd" ANSI_COLOR_RESET "     - Print the current directory path\n");
-    printf(ANSI_COLOR_MAGENTA "mkdir <directory>" ANSI_COLOR_RESET " - Create a directory on the server\n");
+    printf(ANSI_COLOR_MAGENTA "ls" ANSI_COLOR_RESET "      - 列出文件列表\n");
+    printf(ANSI_COLOR_MAGENTA "cd <path>" ANSI_COLOR_RESET " - 修改当前工作目录\n");
+    printf(ANSI_COLOR_MAGENTA "gets <server_filename> <local_filename>" ANSI_COLOR_RESET " - 从服务器下载文件\n");
+    printf(ANSI_COLOR_MAGENTA "puts <local_filename> <server_filename>" ANSI_COLOR_RESET " - 上传文件至服务器\n");
+    printf(ANSI_COLOR_MAGENTA "remove <filename>" ANSI_COLOR_RESET " - 删除文件或空目录\n");
+    printf(ANSI_COLOR_MAGENTA "pwd" ANSI_COLOR_RESET "     - 打印当前工作目录\n");
+    printf(ANSI_COLOR_MAGENTA "mkdir <directory>" ANSI_COLOR_RESET " - 创建空目录\n");
     printf(ANSI_COLOR_GREEN "------------------------------------------------\n" ANSI_COLOR_RESET);
 }
 
@@ -189,8 +189,14 @@ int main(int argc, char *argv[]) {
     display_welcome_message();
 
     char command[BUFFER_SIZE];
+    char cwd[BUFFER_SIZE];
     while (1) {
-        printf(ANSI_COLOR_YELLOW "> " ANSI_COLOR_RESET);
+        bzero(cwd, BUFFER_SIZE);
+        if ((getcwd(cwd, BUFFER_SIZE)) == NULL) {
+            perror("getcwd error");
+            return -1;
+        }
+        printf(ANSI_COLOR_YELLOW "~%s$ " ANSI_COLOR_RESET, cwd);
         fflush(stdout);
 
         if (fgets(command, BUFFER_SIZE, stdin) == NULL) {
@@ -205,7 +211,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (strcmp(command, "exit") == 0) {
-            printf(ANSI_COLOR_GREEN "Exiting...\n" ANSI_COLOR_RESET);
+            printf(ANSI_COLOR_GREEN "退出中...\n" ANSI_COLOR_RESET);
             break;
         }
 
