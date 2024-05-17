@@ -22,13 +22,17 @@ typedef struct ThreadPool {
     int count;                      // 任务队列中当前的任务数量
     int shutdown;                   // 标记线程池是否关闭
     int started;                    // 已启动的线程数量
+    int max_threads;                // 最大线程数
+    int min_threads;                // 最小线程数
+    int active_threads;             // 当前活跃线程数
 } ThreadPool;
 
 // 函数声明
-ThreadPool *thread_pool_create(int thread_count, int queue_size);
+ThreadPool *thread_pool_create(int min_threads, int max_threads, int queue_size);
 int thread_pool_add(ThreadPool *pool, void (*function)(void *), void *arg);
 int thread_pool_destroy(ThreadPool *pool, int grace);
 void thread_pool_free(ThreadPool *pool);
+int thread_pool_resize(ThreadPool *pool, int new_size);
 
 #endif // THREAD_POOL_H
 

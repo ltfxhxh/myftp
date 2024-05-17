@@ -7,12 +7,12 @@
 static void *thread_do_work(void *pool);
 
 // 创建线程池，初始化线程池结构
-ThreadPool *thread_pool_create(int thread_count, int queue_size) {
+ThreadPool *thread_pool_create(int min_threads, int max_threads, int queue_size) {
     ThreadPool *pool;
     int i;
 
-    if (thread_count <= 0 || thread_count > 1024 || queue_size <= 0 || queue_size > 65535) {
-        fprintf(stderr, "Error: Invalid thread_count or queue_size\n");
+    if (min_threads <= 0 || max_threads <= 0 || queue_size <= 0 || min_threads > max_threads) {
+        fprintf(stderr, "Error: Invalid arguments\n");
         return NULL;
     }
 
@@ -24,13 +24,16 @@ ThreadPool *thread_pool_create(int thread_count, int queue_size) {
     }
 
     // Initialize
-    pool->thread_count = thread_count;
+    pool->thread_count = min_threads;
     pool->queue_size = queue_size;
     pool->head = pool->tail = pool->count = 0;
     pool->shutdown = pool->started = 0;
+    pool->max_threads = max_threads;
+    pool->min_threads = min_threads;
+    pool->active_threads = 0;
 
     // Allocate thread and task queue
-    pool->threads = (pthread_t *)malloc(sizeof(pthread_t) * thread_count);
+    pool->threads = (pthread_t *)malloc(sizeof(pthread_t) * max_threads);
     pool->task_queue = (ThreadPoolTask *)malloc(sizeof(ThreadPoolTask) * queue_size);
 
     if (pool->threads == NULL || pool->task_queue == NULL) {
@@ -48,7 +51,7 @@ ThreadPool *thread_pool_create(int thread_count, int queue_size) {
     }
 
     // Start worker threads
-    for (i = 0; i < thread_count; i++) {
+    for (i = 0; i < min_threads; i++) {
         if (pthread_create(&(pool->threads[i]), NULL, thread_do_work, (void *)pool) != 0) {
             thread_pool_destroy(pool, 0);
             return NULL;
@@ -164,6 +167,39 @@ void thread_pool_free(ThreadPool *pool) {
         pthread_cond_destroy(&(pool->notify));
     }
     free(pool);
+}
+
+/*
+ * 动态修改线程池
+ * */
+int thread_pool_resize(ThreadPool *pool, int new_size) {
+    if (new_size < pool->min_threads || new_size > pool->max_threads) {
+        fprintf(stderr, "Error: new_size out of range\n");
+        return -1;
+    }
+
+    pthread_mutex_lock(&(pool->lock));
+    int old_size = pool->thread_count;
+    pool->thread_count = new_size;
+
+    if (new_size > old_size) {
+        // 增加线程
+        for (int i = old_size; i < new_size; ++i) {
+            if (pthread_create(&(pool->threads[i]), NULL, thread_do_work, (void *)pool) != 0) {
+                pool->thread_count = i;
+                break;
+            }
+            pool->started++;
+        }
+    } else if (new_size < old_size) {
+        // 减少线程
+        for (int i = new_size; i < old_size; ++i) {
+            pool->threads[i] = 0;
+        }
+    }
+
+    pthread_mutex_unlock(&(pool->lock));
+    return 0;
 }
 
 // Thread working function

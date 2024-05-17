@@ -1,9 +1,9 @@
 CC = gcc
 CFLAGS = -Wall -g
-LDFLAGS = -lpthread  # Link with pthread library for thread support
+LDFLAGS = -lpthread -lconfig  # Link with pthread library for thread support
 
 # Source files
-SERVER_SRCS = src/server.c src/epoll_manager.c src/thread_pool.c src/command_handler.c src/file_operations.c src/main.c src/network_utils.c
+SERVER_SRCS = src/server.c src/epoll_manager.c src/thread_pool.c src/command_handler.c src/file_operations.c src/main.c src/network_utils.c src/config.c
 CLIENT_SRCS = src/client.c
 OBJS = $(SERVER_SRCS:.c=.o) $(CLIENT_SRCS:.c=.o)
 
@@ -28,5 +28,8 @@ $(CLIENT_BIN): $(CLIENT_SRCS:.c=.o)
 clean:
 	rm -f $(OBJS)
 
-.PHONY: all clean
+clean-all: clean
+	rm -f $(SERVER_BIN) $(CLIENT_BIN)
+
+.PHONY: all clean clean-all
 
