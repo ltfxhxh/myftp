@@ -1,4 +1,5 @@
 #include "thread_pool.h"
+#include "logger.h"  // Include the logger header
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -11,15 +12,19 @@ ThreadPool *thread_pool_create(int min_threads, int max_threads, int queue_size)
     ThreadPool *pool;
     int i;
 
+    LOG_INFO("Creating thread pool with MinThreads=%d, MaxThreads=%d, QueueSize=%d",
+             min_threads, max_threads, queue_size);
+
     if (min_threads <= 0 || max_threads <= 0 || queue_size <= 0 || min_threads > max_threads) {
-        fprintf(stderr, "Error: Invalid arguments\n");
+        LOG_ERROR("Invalid arguments for creating thread pool. MinThreads=%d, MaxThreads=%d, QueueSize=%d",
+                  min_threads, max_threads, queue_size);
         return NULL;
     }
 
     // 分配线程池结构体内存
     pool = (ThreadPool *)malloc(sizeof(ThreadPool));
     if (pool == NULL) {
-        perror("Failed to malloc for ThreadPool");
+        LOG_ERROR("Failed to allocate memory for thread pool.");
         return NULL;
     }
 
@@ -37,7 +42,7 @@ ThreadPool *thread_pool_create(int min_threads, int max_threads, int queue_size)
     pool->task_queue = (ThreadPoolTask *)malloc(sizeof(ThreadPoolTask) * queue_size);
 
     if (pool->threads == NULL || pool->task_queue == NULL) {
-        perror("Failed to malloc for threads or task_queue");
+        LOG_ERROR("Failed to allocate memory for threads or task queue.");
         thread_pool_free(pool);
         return NULL;
     }
@@ -45,7 +50,7 @@ ThreadPool *thread_pool_create(int min_threads, int max_threads, int queue_size)
     // Initialize mutex and conditional variable first
     if (pthread_mutex_init(&(pool->lock), NULL) != 0 ||
         pthread_cond_init(&(pool->notify), NULL) != 0) {
-        perror("Failed to init mutex or cond");
+        LOG_ERROR("Failed to initialize mutex or condition variable.");
         thread_pool_free(pool);
         return NULL;
     }
@@ -53,12 +58,15 @@ ThreadPool *thread_pool_create(int min_threads, int max_threads, int queue_size)
     // Start worker threads
     for (i = 0; i < min_threads; i++) {
         if (pthread_create(&(pool->threads[i]), NULL, thread_do_work, (void *)pool) != 0) {
+            LOG_ERROR("Failed to start worker thread %d.", i);
             thread_pool_destroy(pool, 0);
             return NULL;
         }
         pool->started++;
+        LOG_DEBUG("Worker thread %d started.", i);
     }
 
+    LOG_INFO("Thread pool created successfully.");
     return pool;
 }
 
@@ -67,10 +75,12 @@ int thread_pool_add(ThreadPool *pool, void (*function)(void *), void *arg) {
     int err = 0, next;
 
     if (pool == NULL || function == NULL) {
+        LOG_ERROR("Invalid parameters to thread_pool_add.");
         return -1;
     }
 
     if (pthread_mutex_lock(&(pool->lock)) != 0) {
+        LOG_ERROR("Failed to lock mutex in thread_pool_add.");
         return -1;
     }
 
@@ -80,11 +90,13 @@ int thread_pool_add(ThreadPool *pool, void (*function)(void *), void *arg) {
         // Calculate next position in queue
         if (pool->count == pool->queue_size) {
             err = -1;
+            LOG_ERROR("Thread pool queue is full.");
             break;
         }
 
         if (pool->shutdown) {
             err = -1;
+            LOG_ERROR("Thread pool is shutting down.");
             break;
         }
 
@@ -97,12 +109,15 @@ int thread_pool_add(ThreadPool *pool, void (*function)(void *), void *arg) {
         // pthread_cond_broadcast
         if (pthread_cond_signal(&(pool->notify)) != 0) {
             err = -1;
+            LOG_ERROR("Failed to signal condition variable in thread_pool_add.");
             break;
         }
+        LOG_DEBUG("Task added to thread pool queue.");
     } while (0);
 
     if (pthread_mutex_unlock(&pool->lock) != 0) {
         err = -1;
+        LOG_ERROR("Failed to unlock mutex in thread_pool_add.");
     }
 
     return err;
@@ -113,16 +128,19 @@ int thread_pool_destroy(ThreadPool *pool, int grace) {
     int i, err = 0;
 
     if (pool == NULL) {
+        LOG_ERROR("Attempt to destroy a NULL thread pool.");
         return -1;
     }
 
     if (pthread_mutex_lock(&(pool->lock)) != 0) {
+        LOG_ERROR("Failed to lock mutex in thread_pool_destroy.");
         return -1;
     }
 
     do {
         if (pool->shutdown) {
             err = -1;
+            LOG_ERROR("Attempt to destroy an already shutdown thread pool.");
             break;
         }
 
@@ -131,6 +149,7 @@ int thread_pool_destroy(ThreadPool *pool, int grace) {
         // Wake up all worker threads
         if (pthread_cond_broadcast(&(pool->notify)) != 0 || pthread_mutex_unlock(&(pool->lock)) != 0) {
             err = -1;
+            LOG_ERROR("Failed to wake up all worker threads or unlock mutex in thread_pool_destroy.");
             break;
         }
 
@@ -138,6 +157,7 @@ int thread_pool_destroy(ThreadPool *pool, int grace) {
         for (i = 0; i < pool->thread_count; i++) {
             if (pthread_join(pool->threads[i], NULL) != 0) {
                 err = -1;
+                LOG_ERROR("Failed to join worker thread %d in thread_pool_destroy.", i);
             }
         }
     } while (0);
@@ -145,6 +165,7 @@ int thread_pool_destroy(ThreadPool *pool, int grace) {
     // Only if everything went well do we deallocate the pool
     if (!err) {
         thread_pool_free(pool);
+        LOG_INFO("Thread pool destroyed successfully.");
     }
     return err;
 }
@@ -167,6 +188,7 @@ void thread_pool_free(ThreadPool *pool) {
         pthread_cond_destroy(&(pool->notify));
     }
     free(pool);
+    LOG_INFO("Thread pool resources freed.");
 }
 
 /*
@@ -174,7 +196,8 @@ void thread_pool_free(ThreadPool *pool) {
  * */
 int thread_pool_resize(ThreadPool *pool, int new_size) {
     if (new_size < pool->min_threads || new_size > pool->max_threads) {
-        fprintf(stderr, "Error: new_size out of range\n");
+        LOG_ERROR("Attempt to resize thread pool out of bounds. NewSize=%d, MinThreads=%d, MaxThreads=%d",
+                  new_size, pool->min_threads, pool->max_threads);
         return -1;
     }
 
@@ -183,19 +206,25 @@ int thread_pool_resize(ThreadPool *pool, int new_size) {
     pool->thread_count = new_size;
 
     if (new_size > old_size) {
-        // 增加线程
+        // Increase the number of threads
         for (int i = old_size; i < new_size; ++i) {
             if (pthread_create(&(pool->threads[i]), NULL, thread_do_work, (void *)pool) != 0) {
                 pool->thread_count = i;
+                LOG_ERROR("Failed to increase the size of the thread pool. CurrentSize=%d, NewSize=%d",
+                          i, new_size);
                 break;
             }
             pool->started++;
+            LOG_INFO("Increased thread pool size. New thread %d started.", i);
         }
     } else if (new_size < old_size) {
-        // 减少线程
+        // Decrease the number of threads
         for (int i = new_size; i < old_size; ++i) {
-            pool->threads[i] = 0;
+            if (pthread_cancel(pool->threads[i]) == 0) {
+                LOG_INFO("Cancelled thread %d during pool resize.", i);
+            }
         }
+        LOG_INFO("Reduced thread pool size from %d to %d.", old_size, new_size);
     }
 
     pthread_mutex_unlock(&(pool->lock));
@@ -230,6 +259,7 @@ static void *thread_do_work(void *pool) {
 
         // Execute the task
         (*(task.function))(task.arg);
+        LOG_DEBUG("Executed a task in the thread pool.");
     }
 
     p->started--;
@@ -238,4 +268,3 @@ static void *thread_do_work(void *pool) {
     pthread_exit(NULL);
     return (NULL);
 }
-
