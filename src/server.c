@@ -56,10 +56,10 @@ void server_init_and_run(const char *ip, int port, int min_threads,
 // 固定步长策略调整线程池
 void *monitor_task_queue(void *arg) {
     ThreadPool *pool = (ThreadPool *)arg;
-    const int step = 5;
+    const int step = 2;
     
     while (1) {
-        sleep(10);
+        sleep(120);
         pthread_mutex_lock(&(pool->lock));
 
         if (pool->shutdown) {
