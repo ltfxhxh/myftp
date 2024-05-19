@@ -3,8 +3,8 @@ CFLAGS = -Wall -g
 LDFLAGS = -lpthread -lconfig  # Link with pthread library for thread support
 
 # Source files
-SERVER_SRCS = src/server.c src/epoll_manager.c src/thread_pool.c src/command_handler.c src/file_operations.c src/main.c src/network_utils.c src/config.c src/logger.c
-CLIENT_SRCS = src/client.c
+SERVER_SRCS = src/server/server.c src/server/epoll_manager.c src/server/thread_pool.c src/server/command_handler.c src/server/file_operations.c src/server/main.c src/server/network_utils.c src/server/config.c src/server/logger.c
+CLIENT_SRCS = src/client/client_main.c src/client/file_transfer.c src/client/network.c src/client/ui.c src/client/utils.c
 OBJS = $(SERVER_SRCS:.c=.o) $(CLIENT_SRCS:.c=.o)
 
 # Executable targets

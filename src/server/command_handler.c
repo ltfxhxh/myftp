@@ -44,6 +44,7 @@ void process_command(int client_fd, const char *command) {
 
     char *saveptr;
     char *cmd = strtok_r(args, " \t\r\n", &saveptr);
+    char *path;
 
     if (cmd == NULL) {
         LOG_WARNING("Empty command from FD=%d", client_fd);
@@ -54,26 +55,31 @@ void process_command(int client_fd, const char *command) {
         write(client_fd, msg, strlen(msg));
         close(client_fd);  // Close the connection when "exit" command is received
     } else if (strcmp(cmd, "cd") == 0) {
-        LOG_DEBUG("CD command with path=%s from FD=%d", strtok_r(NULL, " \t\r\n", &saveptr), client_fd);
-        handle_cd(client_fd, strtok_r(NULL, " \t\r\n", &saveptr));
+        path = strtok_r(NULL, " \t\r\n", &saveptr);
+        LOG_DEBUG("CD command with path=%s from FD=%d", path, client_fd);
+        handle_cd(client_fd, path);
     } else if (strcmp(cmd, "ls") == 0) {
         LOG_DEBUG("LS command received from FD=%d", client_fd);
         handle_ls(client_fd);
     } else if (strcmp(cmd, "puts") == 0) {
-        LOG_DEBUG("PUTS command with filename=%s from FD=%d", strtok_r(NULL, " \t\r\n", &saveptr), client_fd);
-        handle_puts(client_fd, strtok_r(NULL, " \t\r\n", &saveptr));
+        path = strtok_r(NULL, " \t\r\n", &saveptr);
+        LOG_DEBUG("PUTS command with filename=%s from FD=%d", path, client_fd);
+        handle_puts(client_fd, path);
     } else if (strcmp(cmd, "gets") == 0) {
-        LOG_DEBUG("GETS command with filename=%s from FD=%d", strtok_r(NULL, " \t\r\n", &saveptr), client_fd);
-        handle_gets(client_fd, strtok_r(NULL, " \t\r\n", &saveptr));
+        path = strtok_r(NULL, " \t\r\n", &saveptr);
+        LOG_DEBUG("GETS command with filename=%s from FD=%d", path, client_fd);
+        handle_gets(client_fd, path);
     } else if (strcmp(cmd, "remove") == 0) {
-        LOG_DEBUG("REMOVE command with filename=%s from FD=%d", strtok_r(NULL, " \t\r\n", &saveptr), client_fd);
-        handle_remove(client_fd, strtok_r(NULL, " \t\r\n", &saveptr));
+        path = strtok_r(NULL, " \t\r\n", &saveptr);
+        LOG_DEBUG("REMOVE command with filename=%s from FD=%d", path, client_fd);
+        handle_remove(client_fd, path);
     } else if (strcmp(cmd, "pwd") == 0) {
         LOG_DEBUG("PWD command received from FD=%d", client_fd);
         handle_pwd(client_fd);
     } else if (strcmp(cmd, "mkdir") == 0) {
-        LOG_DEBUG("MKDIR command with dirname=%s from FD=%d", strtok_r(NULL, " \t\r\n", &saveptr), client_fd);
-        handle_mkdir(client_fd, strtok_r(NULL, " \t\r\n", &saveptr));
+        path = strtok_r(NULL, " \t\r\n", &saveptr);
+        LOG_DEBUG("MKDIR command with dirname=%s from FD=%d", path, client_fd);
+        handle_mkdir(client_fd, path);
     } else {
         LOG_WARNING("Invalid command '%s' from FD=%d", cmd, client_fd);
         handle_invalid(client_fd);

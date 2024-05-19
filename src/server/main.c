@@ -6,7 +6,7 @@
 
 int main(int argc, char *argv[]) {
     // 初始化日志系统
-    log_init("server.log");
+    log_init("../logs/server.log");
     LOG_INFO("server starting...");
 
     if (argc < 2) {
