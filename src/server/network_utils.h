@@ -10,5 +10,7 @@
 // 创建服务端socket,包含bind和listen
 int create_server_socket(const char *ip, int port);
 
+extern const char *END_OF_MESSAGE;
+
 #endif // NETWORKING_H
 

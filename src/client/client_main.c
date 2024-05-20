@@ -3,10 +3,32 @@
 #include "ui.h"
 #include "utils.h"
 #include "login.h"
+#include "logger.h"
 
 const char *END_OF_MESSAGE = "\n.\n";
 
+// 处理gets命令
+void handle_gets(int sockfd, const char *command) {
+
+    char local_filename[256], remote_filename[256];
+    sscanf(command, "gets %s %s", local_filename, remote_filename);
+
+    off_t offset = get_file_size(local_filename);
+    if (offset == -1) {
+        offset = 0;
+    }
+
+    char modified_command[BUFFER_SIZE];
+    snprintf(modified_command, BUFFER_SIZE, "gets %s %s %ld", local_filename, remote_filename, offset);
+
+    send_command(sockfd, modified_command);
+}
+
 int main(int argc, char *argv[]) {
+    // 初始化日志系统
+    log_init("../logs/client.log");
+    LOG_INFO("client starting...");
+    
     if (argc < 3) {
         fprintf(stderr, "Usage: %s <server IP> <server port>\n", argv[0]);
         return EXIT_FAILURE;
@@ -73,10 +95,20 @@ int main(int argc, char *argv[]) {
             break;
         }
 
-        send_command(sockfd, command);
+       // send_command(sockfd, command);
+       // 下面为新增代码
+        if (strncmp(command, "gets", 4) == 0) {
+            handle_gets(sockfd, command);
+        } else {
+            send_command(sockfd, command);
+        }
     }
 
     close(sockfd);
+
+    LOG_INFO("client shut down.");
+    log_close();
+
     return EXIT_SUCCESS;
 }
 

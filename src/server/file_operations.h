@@ -13,7 +13,7 @@ void handle_ls(int client_fd);
 // 上传文件
 void handle_puts(int client_fd, const char *filename);
 // 下载文件
-void handle_gets(int client_fd, const char *filename);
+void handle_gets(int client_fd, const char *filename, off_t offset);
 // 删除文件
 void handle_remove(int client_fd, const char *filename);
 // 打印当前工作目录

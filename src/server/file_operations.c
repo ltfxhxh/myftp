@@ -1,5 +1,6 @@
 #include "file_operations.h"
 #include "logger.h"  // Include the logger header
+#include "network_utils.h"
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -111,13 +112,23 @@ void handle_puts(int client_fd, const char *filename) {
     close(file_fd);
 }
 
-void handle_gets(int client_fd, const char *filename) {
+void handle_gets(int client_fd, const char *filename, off_t offset) {
     LOG_DEBUG("Attempting to send file: %s", filename);
     int file_fd = open(filename, O_RDONLY);
     if (file_fd < 0) {
         LOG_ERROR("Failed to open file for reading: %s", filename);
         perror("Send file error");
         const char *msg = "Can't send file.\n";
+        write(client_fd, msg, strlen(msg));
+        write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
+        return;
+    }
+
+    if (lseek(file_fd, offset, SEEK_SET) == (off_t)-1) {
+        LOG_ERROR("Failed to seek in file: %s", filename);
+        perror("lseek error");
+        close(file_fd);
+        const char *msg = "Can't seek in file.\n";
         write(client_fd, msg, strlen(msg));
         write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
         return;

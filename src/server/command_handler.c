@@ -2,6 +2,7 @@
 #include "auth_handler.h"
 #include "file_operations.h"
 #include "logger.h"
+#include "network_utils.h"
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -82,9 +83,23 @@ void process_command(int client_fd, const char *command) {
         LOG_DEBUG("PUTS command with filename=%s from FD=%d", path, client_fd);
         handle_puts(client_fd, path);
     } else if (strcmp(cmd, "gets") == 0) {
-        path = strtok_r(NULL, " \t\r\n", &saveptr);
-        LOG_DEBUG("GETS command with filename=%s from FD=%d", path, client_fd);
-        handle_gets(client_fd, path);
+        /* 下面是原先的代码
+           path = strtok_r(NULL, " \t\r\n", &saveptr);
+           LOG_DEBUG("GETS command with filename=%s from FD=%d", path, client_fd);
+           handle_gets(client_fd, path);
+           */
+        char *filename = strtok_r(NULL, " \t\r\n", &saveptr);
+        char *offset_str = strtok_r(NULL, " \t\r\n", &saveptr);
+
+        if (filename == NULL || offset_str == NULL) {
+            LOG_WARNING("Invalid gets command format from FD=%d", client_fd);
+            handle_invalid(client_fd);
+            return;
+        }
+
+        off_t offset = atoll(offset_str);
+        LOG_DEBUG("GETS command with filename=%s and offset=%ld from FD=%d", filename, offset, client_fd);
+        handle_gets(client_fd, filename, offset);
     } else if (strcmp(cmd, "remove") == 0) {
         path = strtok_r(NULL, " \t\r\n", &saveptr);
         LOG_DEBUG("REMOVE command with filename=%s from FD=%d", path, client_fd);
@@ -109,5 +124,6 @@ void handle_invalid(int client_fd) {
     LOG_WARNING("Handling invalid command for FD=%d", client_fd);
     const char *msg = "无效的或不支持的命令\n";
     write(client_fd, msg, strlen(msg));
+    write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
 }
 
