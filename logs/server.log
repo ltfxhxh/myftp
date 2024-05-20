@@ -322,3 +322,277 @@
 2024-05-19 16:22:49 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
 2024-05-19 16:22:49 [INFO] (src/server/command_handler.c:24): Client disconnected, FD=6
 2024-05-19 16:22:49 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 17:10:17 [INFO] (src/server/main.c:10): server starting...
+2024-05-19 17:10:17 [INFO] (src/server/main.c:25): Configuration loaded: IP=192.168.5.199, Port=8080, MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 17:10:17 [INFO] (src/server/server.c:14): Initializing server, IP=192.168.5.199, Port=8080, MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 17:10:17 [INFO] (src/server/network_utils.c:13): Attempting to create server socket at 192.168.5.199:8080
+2024-05-19 17:10:17 [DEBUG] (src/server/network_utils.c:22): Socket created, FD=4
+2024-05-19 17:10:17 [DEBUG] (src/server/network_utils.c:30): Socket options set, SO_REUSEADDR
+2024-05-19 17:10:17 [DEBUG] (src/server/network_utils.c:44): Socket bound to 192.168.5.199:8080
+2024-05-19 17:10:17 [INFO] (src/server/network_utils.c:52): Server socket listening on 192.168.5.199:8080
+2024-05-19 17:10:17 [INFO] (src/server/server.c:22): Server socket created, FD=4
+2024-05-19 17:10:17 [INFO] (src/server/thread_pool.c:15): Creating thread pool with MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 17:10:17 [DEBUG] (src/server/thread_pool.c:66): Worker thread 0 started.
+2024-05-19 17:10:17 [DEBUG] (src/server/thread_pool.c:66): Worker thread 1 started.
+2024-05-19 17:10:17 [INFO] (src/server/thread_pool.c:69): Thread pool created successfully.
+2024-05-19 17:10:17 [INFO] (src/server/server.c:31): Thread pool created, MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 17:10:17 [INFO] (src/server/server.c:42): Monitor thread created.
+2024-05-19 17:10:17 [DEBUG] (src/server/epoll_manager.c:14): Attempting to create a new epoll instance.
+2024-05-19 17:10:17 [INFO] (src/server/server.c:84): Monitor thread is monitoring thread pool
+2024-05-19 17:10:17 [INFO] (src/server/epoll_manager.c:20): Created new epoll instance with FD: 5
+2024-05-19 17:10:17 [INFO] (src/server/server.c:52): Epoll instance created, FD=5
+2024-05-19 17:10:17 [DEBUG] (src/server/epoll_manager.c:27): Adding FD 4 to epoll instance with FD 5.
+2024-05-19 17:10:17 [INFO] (src/server/epoll_manager.c:32): FD 4 added to epoll instance.
+2024-05-19 17:10:17 [INFO] (src/server/server.c:58): Server socket added to epoll, FD=4
+2024-05-19 17:10:17 [INFO] (src/server/server.c:60): Server is now listening on 192.168.5.199:8080
+2024-05-19 17:10:17 [INFO] (src/server/epoll_manager.c:63): Starting epoll event loop.
+2024-05-19 17:10:36 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 17:10:36 [DEBUG] (src/server/epoll_manager.c:27): Adding FD 6 to epoll instance with FD 5.
+2024-05-19 17:10:36 [INFO] (src/server/epoll_manager.c:32): FD 6 added to epoll instance.
+2024-05-19 17:10:36 [INFO] (src/server/epoll_manager.c:88): Accepted new connection: FD 6
+2024-05-19 17:10:50 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 17:10:50 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 17:10:50 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 17:10:50 [DEBUG] (src/server/command_handler.c:30): Received command from FD=6: ls
+2024-05-19 17:10:50 [INFO] (src/server/command_handler.c:36): Processing command from FD=6: ls
+2024-05-19 17:10:50 [DEBUG] (src/server/command_handler.c:62): LS command received from FD=6
+2024-05-19 17:10:50 [DEBUG] (src/server/file_operations.c:33): Listing directory contents.
+2024-05-19 17:10:50 [INFO] (src/server/file_operations.c:71): Directory listing completed.
+2024-05-19 17:10:50 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 17:10:52 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 17:10:52 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 17:10:52 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 17:10:52 [DEBUG] (src/server/command_handler.c:30): Received command from FD=6: pwd
+2024-05-19 17:10:52 [INFO] (src/server/command_handler.c:36): Processing command from FD=6: pwd
+2024-05-19 17:10:52 [DEBUG] (src/server/command_handler.c:77): PWD command received from FD=6
+2024-05-19 17:10:52 [DEBUG] (src/server/file_operations.c:169): Attempting to get current working directory.
+2024-05-19 17:10:52 [INFO] (src/server/file_operations.c:176): Current working directory: /home/parallels/myftp/bin
+2024-05-19 17:10:52 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 17:10:54 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 17:10:54 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 17:10:54 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 17:10:54 [DEBUG] (src/server/command_handler.c:30): Received command from FD=6: cd ..
+2024-05-19 17:10:54 [INFO] (src/server/command_handler.c:36): Processing command from FD=6: cd ..
+2024-05-19 17:10:54 [DEBUG] (src/server/command_handler.c:59): CD command with path=.. from FD=6
+2024-05-19 17:10:54 [DEBUG] (src/server/file_operations.c:13): Attempting to change directory to: ..
+2024-05-19 17:10:54 [INFO] (src/server/file_operations.c:20): Changed directory to: ..
+2024-05-19 17:10:54 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 17:10:57 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 17:10:57 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 17:10:57 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 17:10:57 [DEBUG] (src/server/command_handler.c:30): Received command from FD=6: cd bin
+2024-05-19 17:10:57 [INFO] (src/server/command_handler.c:36): Processing command from FD=6: cd bin
+2024-05-19 17:10:57 [DEBUG] (src/server/command_handler.c:59): CD command with path=bin from FD=6
+2024-05-19 17:10:57 [DEBUG] (src/server/file_operations.c:13): Attempting to change directory to: bin
+2024-05-19 17:10:57 [INFO] (src/server/file_operations.c:20): Changed directory to: bin
+2024-05-19 17:10:57 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 17:10:59 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 17:10:59 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 17:10:59 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 17:10:59 [DEBUG] (src/server/command_handler.c:30): Received command from FD=6: ls
+2024-05-19 17:10:59 [INFO] (src/server/command_handler.c:36): Processing command from FD=6: ls
+2024-05-19 17:10:59 [DEBUG] (src/server/command_handler.c:62): LS command received from FD=6
+2024-05-19 17:10:59 [DEBUG] (src/server/file_operations.c:33): Listing directory contents.
+2024-05-19 17:10:59 [INFO] (src/server/file_operations.c:71): Directory listing completed.
+2024-05-19 17:10:59 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 17:11:02 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 17:11:02 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 17:11:02 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 17:11:02 [INFO] (src/server/command_handler.c:24): Client disconnected, FD=6
+2024-05-19 17:11:02 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:19:12 [INFO] (src/server/main.c:10): server starting...
+2024-05-19 22:19:12 [INFO] (src/server/main.c:25): Configuration loaded: IP=192.168.5.199, Port=8080, MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 22:19:12 [INFO] (src/server/server.c:15): Initializing server, IP=192.168.5.199, Port=8080, MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 22:19:12 [INFO] (src/server/network_utils.c:13): Attempting to create server socket at 192.168.5.199:8080
+2024-05-19 22:19:12 [DEBUG] (src/server/network_utils.c:22): Socket created, FD=4
+2024-05-19 22:19:12 [DEBUG] (src/server/network_utils.c:30): Socket options set, SO_REUSEADDR
+2024-05-19 22:19:12 [ERROR] (src/server/network_utils.c:40): Failed to bind socket to 192.168.5.199:8080: Address already in use
+2024-05-19 22:19:12 [ERROR] (src/server/server.c:19): Failed to create server socket
+2024-05-19 22:19:12 [INFO] (src/server/main.c:34): Server shut down.
+2024-05-19 22:21:07 [INFO] (src/server/main.c:10): server starting...
+2024-05-19 22:21:07 [INFO] (src/server/main.c:25): Configuration loaded: IP=192.168.5.199, Port=8080, MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 22:21:07 [INFO] (src/server/server.c:15): Initializing server, IP=192.168.5.199, Port=8080, MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 22:21:07 [INFO] (src/server/network_utils.c:13): Attempting to create server socket at 192.168.5.199:8080
+2024-05-19 22:21:07 [DEBUG] (src/server/network_utils.c:22): Socket created, FD=4
+2024-05-19 22:21:07 [DEBUG] (src/server/network_utils.c:30): Socket options set, SO_REUSEADDR
+2024-05-19 22:21:07 [DEBUG] (src/server/network_utils.c:44): Socket bound to 192.168.5.199:8080
+2024-05-19 22:21:07 [INFO] (src/server/network_utils.c:52): Server socket listening on 192.168.5.199:8080
+2024-05-19 22:21:07 [INFO] (src/server/server.c:23): Server socket created, FD=4
+2024-05-19 22:21:07 [INFO] (src/server/thread_pool.c:15): Creating thread pool with MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 22:21:07 [DEBUG] (src/server/thread_pool.c:66): Worker thread 0 started.
+2024-05-19 22:21:07 [DEBUG] (src/server/thread_pool.c:66): Worker thread 1 started.
+2024-05-19 22:21:07 [INFO] (src/server/thread_pool.c:69): Thread pool created successfully.
+2024-05-19 22:21:07 [INFO] (src/server/server.c:32): Thread pool created, MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 22:21:07 [INFO] (src/server/server.c:43): Monitor thread created.
+2024-05-19 22:21:07 [DEBUG] (src/server/epoll_manager.c:14): Attempting to create a new epoll instance.
+2024-05-19 22:21:07 [INFO] (src/server/epoll_manager.c:20): Created new epoll instance with FD: 5
+2024-05-19 22:21:07 [INFO] (src/server/server.c:53): Epoll instance created, FD=5
+2024-05-19 22:21:07 [DEBUG] (src/server/epoll_manager.c:27): Adding FD 4 to epoll instance with FD 5.
+2024-05-19 22:21:07 [INFO] (src/server/server.c:85): Monitor thread is monitoring thread pool
+2024-05-19 22:21:07 [INFO] (src/server/epoll_manager.c:32): FD 4 added to epoll instance.
+2024-05-19 22:21:07 [INFO] (src/server/server.c:59): Server socket added to epoll, FD=4
+2024-05-19 22:21:07 [INFO] (src/server/server.c:61): Server is now listening on 192.168.5.199:8080
+2024-05-19 22:21:07 [INFO] (src/server/epoll_manager.c:63): Starting epoll event loop.
+2024-05-19 22:21:41 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:21:41 [DEBUG] (src/server/epoll_manager.c:27): Adding FD 6 to epoll instance with FD 5.
+2024-05-19 22:21:41 [INFO] (src/server/epoll_manager.c:32): FD 6 added to epoll instance.
+2024-05-19 22:21:41 [INFO] (src/server/epoll_manager.c:88): Accepted new connection: FD 6
+2024-05-19 22:21:56 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:21:56 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:21:56 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:21:56 [DEBUG] (src/server/command_handler.c:32): Received command from FD=6: {"action": "register", "username": "xiaheng", "password": "9651643461c6ff49fe1482e3de6563f1366f2b910e742d4af0b9628239a7f227"}
+2024-05-19 22:21:56 [INFO] (src/server/command_handler.c:38): Processing command from FD=6: {"action": "register", "username": "xiaheng", "password": "9651643461c6ff49fe1482e3de6563f1366f2b910e742d4af0b9628239a7f227"}
+2024-05-19 22:21:56 [ERROR] (src/server/database.c:16): mysql_real_connect() failed: Unknown MySQL server host '%' (-2)
+2024-05-19 22:21:56 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:22:08 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:22:08 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:22:08 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:22:08 [INFO] (src/server/command_handler.c:26): Client disconnected, FD=6
+2024-05-19 22:22:08 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:27:15 [INFO] (src/server/main.c:10): server starting...
+2024-05-19 22:27:15 [INFO] (src/server/main.c:25): Configuration loaded: IP=192.168.5.199, Port=8080, MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 22:27:15 [INFO] (src/server/server.c:15): Initializing server, IP=192.168.5.199, Port=8080, MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 22:27:15 [INFO] (src/server/network_utils.c:13): Attempting to create server socket at 192.168.5.199:8080
+2024-05-19 22:27:15 [DEBUG] (src/server/network_utils.c:22): Socket created, FD=4
+2024-05-19 22:27:15 [DEBUG] (src/server/network_utils.c:30): Socket options set, SO_REUSEADDR
+2024-05-19 22:27:15 [DEBUG] (src/server/network_utils.c:44): Socket bound to 192.168.5.199:8080
+2024-05-19 22:27:15 [INFO] (src/server/network_utils.c:52): Server socket listening on 192.168.5.199:8080
+2024-05-19 22:27:15 [INFO] (src/server/server.c:23): Server socket created, FD=4
+2024-05-19 22:27:15 [INFO] (src/server/thread_pool.c:15): Creating thread pool with MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 22:27:15 [DEBUG] (src/server/thread_pool.c:66): Worker thread 0 started.
+2024-05-19 22:27:15 [DEBUG] (src/server/thread_pool.c:66): Worker thread 1 started.
+2024-05-19 22:27:15 [INFO] (src/server/thread_pool.c:69): Thread pool created successfully.
+2024-05-19 22:27:15 [INFO] (src/server/server.c:32): Thread pool created, MinThreads=2, MaxThreads=10, QueueSize=50
+2024-05-19 22:27:15 [INFO] (src/server/server.c:43): Monitor thread created.
+2024-05-19 22:27:15 [DEBUG] (src/server/epoll_manager.c:14): Attempting to create a new epoll instance.
+2024-05-19 22:27:15 [INFO] (src/server/epoll_manager.c:20): Created new epoll instance with FD: 5
+2024-05-19 22:27:15 [INFO] (src/server/server.c:53): Epoll instance created, FD=5
+2024-05-19 22:27:15 [DEBUG] (src/server/epoll_manager.c:27): Adding FD 4 to epoll instance with FD 5.
+2024-05-19 22:27:15 [INFO] (src/server/epoll_manager.c:32): FD 4 added to epoll instance.
+2024-05-19 22:27:15 [INFO] (src/server/server.c:59): Server socket added to epoll, FD=4
+2024-05-19 22:27:15 [INFO] (src/server/server.c:61): Server is now listening on 192.168.5.199:8080
+2024-05-19 22:27:15 [INFO] (src/server/epoll_manager.c:63): Starting epoll event loop.
+2024-05-19 22:27:15 [INFO] (src/server/server.c:85): Monitor thread is monitoring thread pool
+2024-05-19 22:27:22 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:27:22 [DEBUG] (src/server/epoll_manager.c:27): Adding FD 6 to epoll instance with FD 5.
+2024-05-19 22:27:22 [INFO] (src/server/epoll_manager.c:32): FD 6 added to epoll instance.
+2024-05-19 22:27:22 [INFO] (src/server/epoll_manager.c:88): Accepted new connection: FD 6
+2024-05-19 22:27:37 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:27:37 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:27:37 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:27:37 [DEBUG] (src/server/command_handler.c:32): Received command from FD=6: {"action": "register", "username": "test", "password": "9651643461c6ff49fe1482e3de6563f1366f2b910e742d4af0b9628239a7f227"}
+2024-05-19 22:27:37 [INFO] (src/server/command_handler.c:38): Processing command from FD=6: {"action": "register", "username": "test", "password": "9651643461c6ff49fe1482e3de6563f1366f2b910e742d4af0b9628239a7f227"}
+2024-05-19 22:27:37 [INFO] (src/server/database.c:21): Connected to database successfully
+2024-05-19 22:27:37 [INFO] (src/server/database.c:51): Checked username 'test': 0
+2024-05-19 22:27:37 [INFO] (src/server/database.c:66): Stored user 'test' in database
+2024-05-19 22:27:37 [INFO] (src/server/auth_handler.c:66): User registered successfully: test
+2024-05-19 22:27:37 [INFO] (src/server/database.c:28): Disconnected from database
+2024-05-19 22:27:37 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:27:48 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:27:48 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:27:48 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:27:48 [DEBUG] (src/server/command_handler.c:32): Received command from FD=6: {"action": "login", "username": "test", "password": "9651643461c6ff49fe1482e3de6563f1366f2b910e742d4af0b9628239a7f227"}
+2024-05-19 22:27:48 [INFO] (src/server/command_handler.c:38): Processing command from FD=6: {"action": "login", "username": "test", "password": "9651643461c6ff49fe1482e3de6563f1366f2b910e742d4af0b9628239a7f227"}
+2024-05-19 22:27:48 [INFO] (src/server/database.c:21): Connected to database successfully
+2024-05-19 22:27:48 [INFO] (src/server/database.c:97): Retrieved user 'test' from database
+2024-05-19 22:27:48 [INFO] (src/server/auth_handler.c:98): User logged in successfully: test
+2024-05-19 22:27:48 [INFO] (src/server/database.c:28): Disconnected from database
+2024-05-19 22:27:48 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:27:50 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:27:50 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:27:50 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:27:50 [DEBUG] (src/server/command_handler.c:32): Received command from FD=6: ls
+2024-05-19 22:27:50 [INFO] (src/server/command_handler.c:38): Processing command from FD=6: ls
+2024-05-19 22:27:50 [DEBUG] (src/server/command_handler.c:78): LS command received from FD=6
+2024-05-19 22:27:50 [DEBUG] (src/server/file_operations.c:33): Listing directory contents.
+2024-05-19 22:27:50 [INFO] (src/server/file_operations.c:71): Directory listing completed.
+2024-05-19 22:27:50 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:27:51 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:27:51 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:27:51 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:27:51 [DEBUG] (src/server/command_handler.c:32): Received command from FD=6: pwd
+2024-05-19 22:27:51 [INFO] (src/server/command_handler.c:38): Processing command from FD=6: pwd
+2024-05-19 22:27:51 [DEBUG] (src/server/command_handler.c:93): PWD command received from FD=6
+2024-05-19 22:27:51 [DEBUG] (src/server/file_operations.c:169): Attempting to get current working directory.
+2024-05-19 22:27:51 [INFO] (src/server/file_operations.c:176): Current working directory: /home/parallels/myftp/bin
+2024-05-19 22:27:51 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:27:54 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:27:54 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:27:54 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:27:54 [INFO] (src/server/command_handler.c:26): Client disconnected, FD=6
+2024-05-19 22:27:54 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:28:38 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:28:38 [DEBUG] (src/server/epoll_manager.c:27): Adding FD 6 to epoll instance with FD 5.
+2024-05-19 22:28:38 [INFO] (src/server/epoll_manager.c:32): FD 6 added to epoll instance.
+2024-05-19 22:28:38 [INFO] (src/server/epoll_manager.c:88): Accepted new connection: FD 6
+2024-05-19 22:28:51 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:28:51 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:28:51 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:28:51 [DEBUG] (src/server/command_handler.c:32): Received command from FD=6: {"action": "register", "username": "xiaheng", "password": "9651643461c6ff49fe1482e3de6563f1366f2b910e742d4af0b9628239a7f227"}
+2024-05-19 22:28:51 [INFO] (src/server/command_handler.c:38): Processing command from FD=6: {"action": "register", "username": "xiaheng", "password": "9651643461c6ff49fe1482e3de6563f1366f2b910e742d4af0b9628239a7f227"}
+2024-05-19 22:28:51 [INFO] (src/server/database.c:21): Connected to database successfully
+2024-05-19 22:28:51 [INFO] (src/server/database.c:51): Checked username 'xiaheng': 0
+2024-05-19 22:28:51 [INFO] (src/server/database.c:66): Stored user 'xiaheng' in database
+2024-05-19 22:28:51 [INFO] (src/server/auth_handler.c:66): User registered successfully: xiaheng
+2024-05-19 22:28:51 [INFO] (src/server/database.c:28): Disconnected from database
+2024-05-19 22:28:51 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:28:57 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:28:57 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:28:57 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:28:57 [DEBUG] (src/server/command_handler.c:32): Received command from FD=6: {"action": "login", "username": "xiaheng", "password": "9651643461c6ff49fe1482e3de6563f1366f2b910e742d4af0b9628239a7f227"}
+2024-05-19 22:28:57 [INFO] (src/server/command_handler.c:38): Processing command from FD=6: {"action": "login", "username": "xiaheng", "password": "9651643461c6ff49fe1482e3de6563f1366f2b910e742d4af0b9628239a7f227"}
+2024-05-19 22:28:57 [INFO] (src/server/database.c:21): Connected to database successfully
+2024-05-19 22:28:57 [INFO] (src/server/database.c:97): Retrieved user 'xiaheng' from database
+2024-05-19 22:28:57 [INFO] (src/server/auth_handler.c:98): User logged in successfully: xiaheng
+2024-05-19 22:28:57 [INFO] (src/server/database.c:28): Disconnected from database
+2024-05-19 22:28:57 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:28:58 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:28:58 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:28:58 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:28:58 [DEBUG] (src/server/command_handler.c:32): Received command from FD=6: ls
+2024-05-19 22:28:58 [INFO] (src/server/command_handler.c:38): Processing command from FD=6: ls
+2024-05-19 22:28:58 [DEBUG] (src/server/command_handler.c:78): LS command received from FD=6
+2024-05-19 22:28:58 [DEBUG] (src/server/file_operations.c:33): Listing directory contents.
+2024-05-19 22:28:58 [INFO] (src/server/file_operations.c:71): Directory listing completed.
+2024-05-19 22:28:58 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:28:59 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:28:59 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:28:59 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:28:59 [DEBUG] (src/server/command_handler.c:32): Received command from FD=6: pwd
+2024-05-19 22:28:59 [INFO] (src/server/command_handler.c:38): Processing command from FD=6: pwd
+2024-05-19 22:28:59 [DEBUG] (src/server/command_handler.c:93): PWD command received from FD=6
+2024-05-19 22:28:59 [DEBUG] (src/server/file_operations.c:169): Attempting to get current working directory.
+2024-05-19 22:28:59 [INFO] (src/server/file_operations.c:176): Current working directory: /home/parallels/myftp/bin
+2024-05-19 22:28:59 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:29:18 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:29:18 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:29:18 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:29:18 [DEBUG] (src/server/command_handler.c:32): Received command from FD=6: ls
+2024-05-19 22:29:18 [INFO] (src/server/command_handler.c:38): Processing command from FD=6: ls
+2024-05-19 22:29:18 [DEBUG] (src/server/command_handler.c:78): LS command received from FD=6
+2024-05-19 22:29:18 [DEBUG] (src/server/file_operations.c:33): Listing directory contents.
+2024-05-19 22:29:18 [INFO] (src/server/file_operations.c:71): Directory listing completed.
+2024-05-19 22:29:18 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:29:24 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:29:24 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:29:24 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:29:24 [DEBUG] (src/server/command_handler.c:32): Received command from FD=6: cd client
+2024-05-19 22:29:24 [INFO] (src/server/command_handler.c:38): Processing command from FD=6: cd client
+2024-05-19 22:29:24 [DEBUG] (src/server/command_handler.c:75): CD command with path=client from FD=6
+2024-05-19 22:29:24 [DEBUG] (src/server/file_operations.c:13): Attempting to change directory to: client
+2024-05-19 22:29:24 [ERROR] (src/server/file_operations.c:15): Failed to change directory to: client
+2024-05-19 22:29:24 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:29:24 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:29:24 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:29:24 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:29:24 [DEBUG] (src/server/command_handler.c:32): Received command from FD=6: ls
+2024-05-19 22:29:24 [INFO] (src/server/command_handler.c:38): Processing command from FD=6: ls
+2024-05-19 22:29:24 [DEBUG] (src/server/command_handler.c:78): LS command received from FD=6
+2024-05-19 22:29:24 [DEBUG] (src/server/file_operations.c:33): Listing directory contents.
+2024-05-19 22:29:24 [INFO] (src/server/file_operations.c:71): Directory listing completed.
+2024-05-19 22:29:24 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.
+2024-05-19 22:30:25 [DEBUG] (src/server/epoll_manager.c:72): Processing 1 events.
+2024-05-19 22:30:25 [DEBUG] (src/server/epoll_manager.c:92): Adding task for FD 6 to thread pool.
+2024-05-19 22:30:25 [DEBUG] (src/server/thread_pool.c:115): Task added to thread pool queue.
+2024-05-19 22:30:25 [INFO] (src/server/command_handler.c:26): Client disconnected, FD=6
+2024-05-19 22:30:25 [DEBUG] (src/server/thread_pool.c:262): Executed a task in the thread pool.

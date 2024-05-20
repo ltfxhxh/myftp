@@ -1,4 +1,5 @@
 #include "command_handler.h"
+#include "auth_handler.h"
 #include "file_operations.h"
 #include "logger.h"
 #include <string.h>
@@ -6,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <json-c/json.h>
 
 /*========== 处理命令行输入 ==========*/
 void handle_input(int client_fd) {
@@ -35,6 +37,20 @@ void handle_input(int client_fd) {
 void process_command(int client_fd, const char *command) {
     LOG_INFO("Processing command from FD=%d: %s", client_fd, command);
 
+    json_object *parsed_command = json_tokener_parse(command);
+    if (parsed_command != NULL) {
+        // 解析 JSON 格式命令
+        const char *action = json_object_get_string(json_object_object_get(parsed_command, "action"));
+        if (strcmp(action, "register") == 0) {
+            handle_register_request(client_fd, command);
+        } else if (strcmp(action, "login") == 0) {
+            handle_login_request(client_fd, command);
+        }
+        json_object_put(parsed_command);
+        return;
+    }
+
+    // 处理普通字符串命令
     char *args = strdup(command);
     if (!args) {
         LOG_ERROR("Memory allocation failed when duplicating command string.");
@@ -53,7 +69,7 @@ void process_command(int client_fd, const char *command) {
         LOG_INFO("Exit command received from FD=%d", client_fd);
         const char *msg = "Exiting, goodbye!\n";
         write(client_fd, msg, strlen(msg));
-        close(client_fd);  // Close the connection when "exit" command is received
+        close(client_fd);
     } else if (strcmp(cmd, "cd") == 0) {
         path = strtok_r(NULL, " \t\r\n", &saveptr);
         LOG_DEBUG("CD command with path=%s from FD=%d", path, client_fd);
@@ -94,3 +110,4 @@ void handle_invalid(int client_fd) {
     const char *msg = "无效的或不支持的命令\n";
     write(client_fd, msg, strlen(msg));
 }
+

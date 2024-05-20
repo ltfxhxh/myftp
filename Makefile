@@ -1,10 +1,10 @@
 CC = gcc
 CFLAGS = -Wall -g
-LDFLAGS = -lpthread -lconfig  # Link with pthread library for thread support
+LDFLAGS = -lpthread -lconfig -ljson-c -lmysqlclient -lcrypto  # Link with pthread library for thread support
 
 # Source files
-SERVER_SRCS = src/server/server.c src/server/epoll_manager.c src/server/thread_pool.c src/server/command_handler.c src/server/file_operations.c src/server/main.c src/server/network_utils.c src/server/config.c src/server/logger.c
-CLIENT_SRCS = src/client/client_main.c src/client/file_transfer.c src/client/network.c src/client/ui.c src/client/utils.c
+SERVER_SRCS = src/server/server.c src/server/epoll_manager.c src/server/thread_pool.c src/server/command_handler.c src/server/file_operations.c src/server/main.c src/server/network_utils.c src/server/config.c src/server/logger.c src/server/auth_handler.c src/server/database.c
+CLIENT_SRCS = src/client/client_main.c src/client/file_transfer.c src/client/network.c src/client/ui.c src/client/utils.c src/client/login.c
 OBJS = $(SERVER_SRCS:.c=.o) $(CLIENT_SRCS:.c=.o)
 
 # Executable targets

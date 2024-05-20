@@ -3,6 +3,7 @@
 #define UI_H
 #include "common.h"
 
+void display_login();
 void display_welcome_message();
 void trim_newline(char *str);
 

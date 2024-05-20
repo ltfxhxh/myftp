@@ -2,6 +2,7 @@
 #include "network.h"
 #include "ui.h"
 #include "utils.h"
+#include "login.h"
 
 const char *END_OF_MESSAGE = "\n.\n";
 
@@ -17,6 +18,32 @@ int main(int argc, char *argv[]) {
     int sockfd = connect_to_server(server_ip, server_port);
     if (sockfd < 0) {
         return EXIT_FAILURE;
+    }
+
+    while (1) {
+        display_login();
+
+        int choice;
+        printf("输入选项: ");
+        scanf("%d", &choice);
+        getchar();
+
+        if (choice == 1) {
+            // 调用登录函数
+            if (handle_login(sockfd)) {
+                break;  // 登陆成功,跳出循环,进入命令行操作模式
+            }
+        } else if (choice == 2) {
+            // 调用注册函数
+            handle_register(sockfd);
+        } else if (choice == 3) {
+            // 退出程序
+            printf(ANSI_COLOR_GREEN "退出中...\n" ANSI_COLOR_RESET);
+            close(sockfd);
+            return EXIT_SUCCESS;
+        } else {
+            printf(ANSI_COLOR_RED "无效的选项,请重新输入.\n" ANSI_COLOR_RESET);
+        }
     }
 
     display_welcome_message();

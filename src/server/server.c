@@ -4,6 +4,7 @@
 #include "thread_pool.h"
 #include "command_handler.h"
 #include "logger.h"
+#include "auth_handler.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
