@@ -7,22 +7,32 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/sendfile.h>
+#include <sys/stat.h>
+#include <inttypes.h>
+
+#define THRESHOLD 100 * 1024 * 1024
+
+off_t get_file_size(const char *filename) {
+    struct stat st;
+    if (stat(filename, &st) == 0) {
+        return st.st_size;
+    }
+    return -1;
+}
 
 const char *END_OF_MESSAGE = "\n.\n";
 
 void handle_cd(int client_fd, const char *path) {
     LOG_DEBUG("Attempting to change directory to: %s", path);
     if (chdir(path) == -1) {
-        LOG_ERROR("Failed to change directory to: %s", path);
-        perror("chdir error");
-        const char *msg = "Change Directory Failed.\n";
-        write(client_fd, msg, strlen(msg));
+        ERROR_CHECK(client_fd, "切换目录失败.\n");
     } else {
         LOG_INFO("Changed directory to: %s", path);
         const char *msg = "Change Directory Successfully.\n";
         write(client_fd, msg, strlen(msg));
+        write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
     }
-    write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
 }
 
 void handle_ls(int client_fd) {
@@ -33,11 +43,7 @@ void handle_ls(int client_fd) {
 
     LOG_DEBUG("Listing directory contents.");
     if ((dir = opendir(".")) == NULL) {
-        LOG_ERROR("Failed to open directory.");
-        perror("opendir error");
-        const char *msg = "Error: failed to open directory.\n";
-        write(client_fd, msg, strlen(msg));
-        write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
+        ERROR_CHECK(client_fd, "打开目录失败.\n");
         return;
     }
 
@@ -76,11 +82,7 @@ void handle_puts(int client_fd, const char *filename) {
     LOG_DEBUG("Attempting to store file: %s", filename);
     int file_fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (file_fd < 0) {
-        LOG_ERROR("Failed to open file for writing: %s", filename);
-        perror("Puts file error");
-        const char *msg = "Can't puts file.\n";
-        write(client_fd, msg, strlen(msg));
-        write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
+        ERROR_CHECK(client_fd, "上传失败.\n");
         return;
     }
 
@@ -88,12 +90,8 @@ void handle_puts(int client_fd, const char *filename) {
     ssize_t readbytes;
     while ((readbytes = read(client_fd, buf, sizeof(buf))) > 0) {
         if (write(file_fd, buf, readbytes) != readbytes) {
-            LOG_ERROR("Failed to write to file: %s", filename);
-            perror("Write file error");
-            const char *msg = "Puts file error occurred in writing file\n";
-            write(client_fd, msg, strlen(msg));
+            ERROR_CHECK(client_fd, "上传失败.\n");
             close(file_fd);
-            write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
             return;
         }
     }
@@ -112,52 +110,58 @@ void handle_puts(int client_fd, const char *filename) {
     close(file_fd);
 }
 
-void handle_gets(int client_fd, const char *filename, off_t offset) {
-    LOG_DEBUG("Attempting to send file: %s", filename);
-    int file_fd = open(filename, O_RDONLY);
-    if (file_fd < 0) {
-        LOG_ERROR("Failed to open file for reading: %s", filename);
-        perror("Send file error");
-        const char *msg = "Can't send file.\n";
-        write(client_fd, msg, strlen(msg));
-        write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
+void handle_gets(int client_fd, const char *filename) {
+    LOG_DEBUG("处理gets命令");
+    char buffer[BUFSIZ];
+    int fd;
+
+    off_t file_size = get_file_size(filename);
+    LOG_INFO("%s的大小:%jd", filename, (intmax_t)file_size);
+    if (file_size == -1) {
+        LOG_ERROR("文件不存在");
+        file_size = 0;
+        send(client_fd, &file_size, sizeof(file_size), 0);
+        LOG_DEBUG("文件不存在后发送文件大小:%jd", (intmax_t)file_size);
         return;
     }
 
-    if (lseek(file_fd, offset, SEEK_SET) == (off_t)-1) {
-        LOG_ERROR("Failed to seek in file: %s", filename);
-        perror("lseek error");
-        close(file_fd);
-        const char *msg = "Can't seek in file.\n";
-        write(client_fd, msg, strlen(msg));
-        write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
+    send(client_fd, &file_size, sizeof(file_size), 0);
+    LOG_INFO("传输文件大小给客户端:%jd", (intmax_t)file_size);
+    
+    fd = open(filename, O_RDONLY);
+    if (fd == -1) {
+        LOG_ERROR("打开%s失败", filename);
+        perror("open");
         return;
     }
+    LOG_INFO("文件打开成功:%s", filename);
 
-    char buf[BUFSIZ];
-    ssize_t readbytes;
-    while ((readbytes = read(file_fd, buf, sizeof(buf))) > 0) {
-        if (write(client_fd, buf, readbytes) != readbytes) {
-            LOG_ERROR("Failed to write to client during GETS operation.");
-            perror("Write file error");
-            const char *msg = "Gets file error occurred in writing file\n";
-            write(client_fd, msg, strlen(msg));
-            close(file_fd);
-            write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
-            return;
+    off_t received_size = 0;
+    recv(client_fd, &received_size, sizeof(received_size), 0);
+    LOG_INFO("收到偏移量:%jd", (intmax_t)received_size);
+    lseek(fd, received_size, SEEK_SET);
+    LOG_DEBUG("偏移成功:%jd", (intmax_t)received_size);
+
+    // 判断是否为大文件传输
+    if (file_size - received_size >= THRESHOLD) {
+        off_t remaining_size = file_size - received_size;
+        LOG_INFO("大文件传输");
+        sendfile(client_fd, fd, NULL, remaining_size);
+    } else {
+        // 发送文件数据
+        ssize_t bytes_read;
+        LOG_INFO("开始传输数据");
+        while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0 ) {
+            if (send(client_fd, buffer, bytes_read, 0) == -1) {
+                LOG_ERROR("发送文件数据出错");
+                perror("send");
+                break;
+            }
         }
     }
-
-    if (readbytes < 0) {
-        LOG_ERROR("Error reading file during GETS operation: %s", filename);
-        perror("Read file error");
-        const char *msg = "Gets file error occurred in reading file\n";
-        write(client_fd, msg, strlen(msg));
-    } else {
-        LOG_INFO("File sent successfully: %s", filename);
-    }
-    close(file_fd);
-    write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
+    
+    close(fd);
+    
 }
 
 void handle_remove(int client_fd, const char *filename) {

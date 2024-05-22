@@ -83,23 +83,9 @@ void process_command(int client_fd, const char *command) {
         LOG_DEBUG("PUTS command with filename=%s from FD=%d", path, client_fd);
         handle_puts(client_fd, path);
     } else if (strcmp(cmd, "gets") == 0) {
-        /* 下面是原先的代码
-           path = strtok_r(NULL, " \t\r\n", &saveptr);
-           LOG_DEBUG("GETS command with filename=%s from FD=%d", path, client_fd);
-           handle_gets(client_fd, path);
-           */
-        char *filename = strtok_r(NULL, " \t\r\n", &saveptr);
-        char *offset_str = strtok_r(NULL, " \t\r\n", &saveptr);
-
-        if (filename == NULL || offset_str == NULL) {
-            LOG_WARNING("Invalid gets command format from FD=%d", client_fd);
-            handle_invalid(client_fd);
-            return;
-        }
-
-        off_t offset = atoll(offset_str);
-        LOG_DEBUG("GETS command with filename=%s and offset=%ld from FD=%d", filename, offset, client_fd);
-        handle_gets(client_fd, filename, offset);
+        path = strtok_r(NULL, " \t\r\n", &saveptr);
+        LOG_DEBUG("GETS command with filename=%s from FD=%d", path, client_fd);
+        handle_gets(client_fd, path);
     } else if (strcmp(cmd, "remove") == 0) {
         path = strtok_r(NULL, " \t\r\n", &saveptr);
         LOG_DEBUG("REMOVE command with filename=%s from FD=%d", path, client_fd);
