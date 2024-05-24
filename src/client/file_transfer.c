@@ -3,6 +3,9 @@
 #include "logger.h"
 #include "utils.h"
 #include <inttypes.h>
+#include <sys/mman.h>
+
+#define THRESHOLD 10 * 1024 * 1024
 
 void process_command(int sockfd, const char *command, char *buffer) {
     char cmd[100], local_filename[256];
@@ -127,39 +130,69 @@ void process_command(int sockfd, const char *command, char *buffer) {
             }
         }
         LOG_INFO("收到偏移量:%jd", (intmax_t)received_size);
-        off_t debug = lseek(fd, received_size, SEEK_SET);
-        LOG_DEBUG("偏移成功:%jd", (intmax_t)debug);
-
         ssize_t bytes_read, bytes_sent;
-ssize_t total_sent = received_size;
-LOG_INFO("开始传输数据");
+        ssize_t total_sent = received_size;
+        LOG_INFO("开始传输数据");
 
-while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0) {
-    ssize_t total_bytes_sent = 0;
-    while (total_bytes_sent < bytes_read) {
-        bytes_sent = send(sockfd, buffer + total_bytes_sent, bytes_read - total_bytes_sent, MSG_NOSIGNAL);
-        if (bytes_sent == -1) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                continue;
-            } else {
-                LOG_ERROR("发送文件数据出错:%s", strerror(errno));
-                perror("send");
-                close(fd);
+        if (file_size >= THRESHOLD) {
+            LOG_INFO("大文件MMAP优化");
+            void *file_map = mmap(NULL, file_size, PROT_READ, MAP_PRIVATE, fd, 0);
+            if (file_map == MAP_FAILED) {
+                LOG_ERROR("文件映射失败");
+                perror("mmap");
                 return;
             }
+
+            char *data_ptr = (char *)file_map + received_size;
+
+            while (total_sent < file_size) {
+                bytes_sent = send(sockfd, data_ptr + total_sent, file_size - total_sent, MSG_NOSIGNAL);
+                if (bytes_sent == -1) {
+                    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                        continue;
+                    } else {
+                        LOG_ERROR("发送文件数据出错:%s", strerror(errno));
+                        perror("send");
+                        munmap(file_map, file_size);
+                        return;
+                    }
+                }
+                total_sent += bytes_sent;
+            }
+            munmap(file_map, file_size);
+        } else {
+            off_t debug = lseek(fd, received_size, SEEK_SET);
+            LOG_DEBUG("偏移成功:%jd", (intmax_t)debug);
+
+
+            while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0) {
+                ssize_t total_bytes_sent = 0;
+                while (total_bytes_sent < bytes_read) {
+                    bytes_sent = send(sockfd, buffer + total_bytes_sent, bytes_read - total_bytes_sent, MSG_NOSIGNAL);
+                    if (bytes_sent == -1) {
+                        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                            continue;
+                        } else {
+                            LOG_ERROR("发送文件数据出错:%s", strerror(errno));
+                            perror("send");
+                            close(fd);
+                            return;
+                        }
+                    }
+                    total_bytes_sent += bytes_sent;
+                }
+                total_sent += total_bytes_sent;
+            }
+
+            if (bytes_read == -1) {
+                LOG_ERROR("读取文件出错:%s", strerror(errno));
+                perror("read");
+            }
+
         }
-        total_bytes_sent += bytes_sent;
-    }
-    total_sent += total_bytes_sent;
-}
 
-if (bytes_read == -1) {
-    LOG_ERROR("读取文件出错:%s", strerror(errno));
-    perror("read");
-}
-
-close(fd);
-LOG_INFO("文件传输完成，总共发送了%zd字节数据", total_sent);
+        close(fd);
+        LOG_INFO("文件传输完成，总共发送了%zd字节数据", total_sent);
 
     } else {
         LOG_INFO("处理其他命令.");
