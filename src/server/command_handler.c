@@ -24,7 +24,7 @@ void handle_input(int client_fd) {
         LOG_ERROR("Error reading from client FD=%d: %s", client_fd, strerror(errno));
         exit(EXIT_FAILURE);
     } else if (numbytes == 0) {
-        LOG_INFO("Client disconnected, FD=%d", client_fd);
+        LOG_ERROR("Client disconnected, FD=%d", client_fd);
         printf("Client disconnected\n");
         close(client_fd);
         return;

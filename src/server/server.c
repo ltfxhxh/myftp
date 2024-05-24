@@ -10,6 +10,8 @@
 #include <string.h>
 #include <unistd.h>
 
+int epoll_fd;
+
 void server_init_and_run(const char *ip, int port, int min_threads,
                          int max_threads, int queue_size) {
     LOG_INFO("Initializing server, IP=%s, Port=%d, MinThreads=%d, MaxThreads=%d, QueueSize=%d", 
@@ -42,7 +44,7 @@ void server_init_and_run(const char *ip, int port, int min_threads,
     }
     LOG_INFO("Monitor thread created.");
 
-    int epoll_fd = epoll_create_instance();
+    epoll_fd = epoll_create_instance();
     if (epoll_fd < 0) {
         // fprintf(stderr, "Error creating epoll instance\n");
         LOG_ERROR("Failed to create epoll instance.");

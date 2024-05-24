@@ -1,6 +1,7 @@
 #include "epoll_manager.h"
 #include "command_handler.h"
 #include "logger.h"  // Include the logger header
+#include "network_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -12,7 +13,7 @@
 // 创建一个新的 epoll 实例
 int epoll_create_instance(void) {
     LOG_DEBUG("Attempting to create a new epoll instance.");
-    int epoll_fd = epoll_create1(0);
+    epoll_fd = epoll_create1(0);
     if (epoll_fd == -1) {
         LOG_ERROR("Failed to create epoll instance. Error: %s", strerror(errno));
         perror("epoll_create1 failed");

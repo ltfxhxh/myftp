@@ -11,6 +11,7 @@
 int create_server_socket(const char *ip, int port);
 
 extern const char *END_OF_MESSAGE;
+extern int epoll_fd;
 
 #endif // NETWORKING_H
 

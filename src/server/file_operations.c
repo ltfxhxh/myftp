@@ -1,6 +1,8 @@
 #include "file_operations.h"
 #include "logger.h"  // Include the logger header
 #include "network_utils.h"
+#include "epoll_manager.h"
+#include "network_utils.h"
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -10,6 +12,7 @@
 #include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <inttypes.h>
+#include <errno.h>
 
 #define THRESHOLD 100 * 1024 * 1024
 
@@ -79,36 +82,104 @@ void handle_ls(int client_fd) {
 }
 
 void handle_puts(int client_fd, const char *filename) {
-    LOG_DEBUG("Attempting to store file: %s", filename);
-    int file_fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-    if (file_fd < 0) {
-        ERROR_CHECK(client_fd, "上传失败.\n");
-        return;
-    }
+    LOG_DEBUG("处理puts命令");
+    
+    char buffer[BUFSIZ];
+    ssize_t bytes_received, bytes_written;
+    FILE *file;
+    off_t file_size, received_size = 0;
 
-    char buf[BUFSIZ];
-    ssize_t readbytes;
-    while ((readbytes = read(client_fd, buf, sizeof(buf))) > 0) {
-        if (write(file_fd, buf, readbytes) != readbytes) {
-            ERROR_CHECK(client_fd, "上传失败.\n");
-            close(file_fd);
+    // 接收文件大小
+    bytes_received = recv(client_fd, &file_size, sizeof(file_size), 0);
+    if (bytes_received == 0) {
+        LOG_ERROR("客户端关闭连接");
+        return;
+    } else if (bytes_received == -1) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            LOG_DEBUG("资源暂时不可用,重试recv");
+            // 可以重试或返回错误
+            return;
+        } else {
+            LOG_ERROR("接收文件大小失败,错误信息:%s", strerror(errno));
             return;
         }
     }
 
-    if (readbytes < 0) {
-        LOG_ERROR("Error reading from client during PUTS operation.");
-        perror("Read file error");
-        const char *msg = "Puts file error occurred in reading file\n";
-        write(client_fd, msg, strlen(msg));
-    } else {
-        LOG_INFO("File stored successfully: %s", filename);
-        const char *msg = "Puts file successfully!\n";
-        write(client_fd, msg, strlen(msg));
+    LOG_DEBUG("%s的大小为:%jd", filename, (intmax_t)file_size);
+
+    if (file_size <= 0) {
+        LOG_ERROR("文件不存在或为空:%jd", (intmax_t)file_size);
+        return;
     }
-    write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
-    close(file_fd);
+
+    // 检查是否已有部分文件
+    file = fopen(filename, "rb");
+    if (file) {
+        fseeko(file, 0, SEEK_END);
+        received_size = ftello(file);
+        LOG_INFO("已有文件大小:%jd", (intmax_t)received_size);
+        fclose(file);
+    } else {
+        LOG_DEBUG("没有部分文件");
+        received_size = 0;
+    }
+
+    // 发送当前已接收大小以实现断点续传
+    send(client_fd, &received_size, sizeof(received_size), MSG_NOSIGNAL);
+    LOG_DEBUG("发送当前已接收大小以实现断点续传:%jd", (intmax_t)received_size);
+
+    epoll_remove_fd(epoll_fd, client_fd);
+    // 打开文件以追加
+    file = fopen(filename, "ab");
+    if (!file) {
+        LOG_ERROR("打开文件失败");
+        perror("fopen");
+        return;
+    }
+    LOG_DEBUG("成功打开文件");
+
+
+    // 接收文件数据
+    LOG_INFO("开始接收文件数据");
+    off_t total_received = received_size;
+    while (total_received < file_size) {
+        bytes_received = recv(client_fd, buffer, sizeof(buffer), 0);
+        if (bytes_received == -1) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                LOG_DEBUG("资源暂时不可用,等待数据变得可用");
+                usleep(100);
+                continue;
+            } else {
+                LOG_ERROR("接收文件数据失败,bytes_received=%zd, 错误信息:%s", bytes_received, strerror(errno));
+                fclose(file);
+                struct epoll_event event;
+                event.data.fd = client_fd;
+                event.events = EPOLLIN | EPOLLET;
+                epoll_add_fd(epoll_fd, client_fd, &event);
+                return;
+            }
+        } else if (bytes_received == 0) {
+            LOG_DEBUG("客户端关闭连接");
+            break;
+        }
+        bytes_written = fwrite(buffer, 1, bytes_received, file);
+        if (bytes_written != bytes_received) {
+            LOG_ERROR("读到%zd字节,写入%zd字节", bytes_received, bytes_written);
+            perror("fwrite");
+            break;
+        }
+        total_received += bytes_received;
+    }
+
+    fclose(file);
+    struct epoll_event event;
+    event.data.fd = client_fd;
+    event.events = EPOLLIN | EPOLLET;
+    epoll_add_fd(epoll_fd, client_fd, &event);
+
+    LOG_INFO("文件下载成功: %jd字节.", (intmax_t)total_received);
 }
+
 
 void handle_gets(int client_fd, const char *filename) {
     LOG_DEBUG("处理gets命令");
