@@ -1,6 +1,31 @@
 #include "login.h"
 #include <openssl/sha.h>
 #include <json-c/json.h>
+#include <termios.h>
+
+void get_password(char *password, size_t size) {
+    struct termios oldt, newt;
+    int ch, i = 0;
+
+    // 获取当前终端设置并保存
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+
+    // 禁用回显
+    newt.c_lflag &= ~(ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+    // 逐字符读取密码输入
+    while ((ch = getchar()) != '\n' && ch != EOF && i < size - 1) {
+        password[i++] = ch;
+        putchar('*'); // 显示替代字符
+    }
+    password[i] = '\0';
+
+    // 恢复终端设置
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    putchar('\n');
+}
 
 void hash_password(const char *password, char *hashed_password) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
@@ -93,8 +118,7 @@ int handle_login(int sockfd, char *token, char *usr) {
     trim_newline(username);
 
     printf("密码：");
-    fgets(password, BUFFER_SIZE, stdin);
-    trim_newline(password);
+     get_password(password, BUFFER_SIZE); // 使用自定义的密码输入函数
 
     // 发送前加密密码
     char hashed_password[BUFFER_SIZE];
