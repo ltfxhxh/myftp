@@ -43,13 +43,23 @@ void handle_register_request(int client_fd, json_object *args) {
 
     MYSQL *conn = db_connect();
     if (conn == NULL) {
-        send(client_fd, "error: database connection failed", strlen("error: database connection failed"), 0);
+        json_object *response = json_object_new_object();
+        json_object_object_add(response, "success", json_object_new_boolean(0));
+        json_object_object_add(response, "message", json_object_new_string("Database connection failed"));
+        const char *response_str = json_object_to_json_string(response);
+        send(client_fd, response_str, strlen(response_str), 0);
+        json_object_put(response);
         return;
     }
 
     if (check_username_exists(conn, username) == 1) {
         LOG_WARNING("Username already exists: %s", username);
-        send(client_fd, "error: username already exists", strlen("error: username already exists"), 0);
+        json_object *response = json_object_new_object();
+        json_object_object_add(response, "success", json_object_new_boolean(0));
+        json_object_object_add(response, "message", json_object_new_string("Username already exists"));
+        const char *response_str = json_object_to_json_string(response);
+        send(client_fd, response_str, strlen(response_str), 0);
+        json_object_put(response);
         db_disconnect(conn);
         return;
     }
@@ -60,16 +70,24 @@ void handle_register_request(int client_fd, json_object *args) {
     char hashed_password[HASH_LENGTH + 1];
     custom_hash_password(password, salt, hashed_password);
 
+    json_object *response = json_object_new_object();
     if (store_user(conn, username, hashed_password, salt, "/") == 0) {
         LOG_INFO("User registered successfully: %s", username);
-        send(client_fd, "success", strlen("success"), 0);
+        json_object_object_add(response, "success", json_object_new_boolean(1));
+        json_object_object_add(response, "message", json_object_new_string("Registration successful"));
     } else {
         LOG_ERROR("Failed to store user: %s", username);
-        send(client_fd, "error: failed to register user", strlen("error: failed to register user"), 0);
+        json_object_object_add(response, "success", json_object_new_boolean(0));
+        json_object_object_add(response, "message", json_object_new_string("Failed to register user"));
     }
+
+    const char *response_str = json_object_to_json_string(response);
+    send(client_fd, response_str, strlen(response_str), 0);
+    json_object_put(response);
 
     db_disconnect(conn);
 }
+
 
 void handle_login_request(int client_fd, json_object *args) {
     const char *username = json_object_get_string(json_object_object_get(args, "username"));
