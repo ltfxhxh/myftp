@@ -1,9 +1,9 @@
 CC = gcc
-CFLAGS = -Wall -g
-LDFLAGS = -lpthread -lconfig -ljson-c -lmysqlclient -lcrypto  # Link with pthread library for thread support
+CFLAGS = -Wall -g -I/usr/local/include/l8w8jwt
+LDFLAGS = -lpthread -lconfig -ljson-c -lmysqlclient -lcrypto -ll8w8jwt # Link with pthread library for thread support
 
 # Source files
-SERVER_SRCS = src/server/server.c src/server/epoll_manager.c src/server/thread_pool.c src/server/command_handler.c src/server/file_operations.c src/server/main.c src/server/network_utils.c src/server/config.c src/server/logger.c src/server/auth_handler.c src/server/database.c
+SERVER_SRCS = src/server/server.c src/server/epoll_manager.c src/server/thread_pool.c src/server/command_handler.c src/server/file_operations.c src/server/main.c src/server/network_utils.c src/server/config.c src/server/logger.c src/server/auth_handler.c src/server/database.c src/server/jwt_util.c src/server/virtual_file_table.c
 CLIENT_SRCS = src/client/client_main.c src/client/file_transfer.c src/client/network.c src/client/ui.c src/client/utils.c src/client/login.c src/client/logger.c
 OBJS = $(SERVER_SRCS:.c=.o) $(CLIENT_SRCS:.c=.o)
 

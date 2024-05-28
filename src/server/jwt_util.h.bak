@@ -1,0 +1,9 @@
+#ifndef JWT_UTIL_H
+#define JWT_UTIL_H
+
+char* generate_token(const char *username, const char *secret_key);
+int verify_token(const char *token, const char *secret_key);
+int extract_user_id_from_token(const char *token, const char *secret_key);
+
+#endif // JWT_UTIL_H
+

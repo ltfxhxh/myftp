@@ -3,6 +3,8 @@
 #include "file_operations.h"
 #include "logger.h"
 #include "network_utils.h"
+#include "jwt_util.h"
+#include "config.h"
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -10,19 +12,18 @@
 #include <errno.h>
 #include <json-c/json.h>
 
-/*========== 处理命令行输入 ==========*/
 void handle_input(int client_fd) {
     char buffer[BUFSIZ];
     ssize_t numbytes;
 
     memset(buffer, 0, sizeof(buffer));
 
-    // 从客户端读取数据
     numbytes = read(client_fd, buffer, sizeof(buffer));
     if (numbytes < 0) {
         perror("read error");
         LOG_ERROR("Error reading from client FD=%d: %s", client_fd, strerror(errno));
-        exit(EXIT_FAILURE);
+        close(client_fd);
+        return;
     } else if (numbytes == 0) {
         LOG_ERROR("Client disconnected, FD=%d", client_fd);
         printf("Client disconnected\n");
@@ -30,86 +31,65 @@ void handle_input(int client_fd) {
         return;
     }
 
-    LOG_DEBUG("Received command from FD=%d: %s", client_fd, buffer);
     process_command(client_fd, buffer);
 }
 
-/*========== 处理命令行输入的命令 ==========*/
 void process_command(int client_fd, const char *command) {
     LOG_INFO("Processing command from FD=%d: %s", client_fd, command);
 
     json_object *parsed_command = json_tokener_parse(command);
-    if (parsed_command != NULL) {
-        // 解析 JSON 格式命令
-        const char *action = json_object_get_string(json_object_object_get(parsed_command, "action"));
-        if (strcmp(action, "register") == 0) {
-            handle_register_request(client_fd, command);
-        } else if (strcmp(action, "login") == 0) {
-            handle_login_request(client_fd, command);
-        }
+    if (parsed_command == NULL) {
+        LOG_ERROR("Failed to parse command as JSON from FD=%d", client_fd);
+        return;
+    }
+
+    const char *cmd = json_object_get_string(json_object_object_get(parsed_command, "command"));
+    json_object *arg = json_object_object_get(parsed_command, "args");
+    const char *args = json_object_get_string(json_object_object_get(parsed_command, "args"));
+    const char *token = json_object_get_string(json_object_object_get(parsed_command, "token"));
+
+    if (cmd == NULL) {
+        LOG_ERROR("Invalid command from FD=%d", client_fd);
         json_object_put(parsed_command);
         return;
     }
 
-    // 处理普通字符串命令
-    char *args = strdup(command);
-    if (!args) {
-        LOG_ERROR("Memory allocation failed when duplicating command string.");
-        perror("strdup failed");
-        exit(EXIT_FAILURE);
+    int user_id = -1;
+    if (strcmp(cmd, "register") != 0 && strcmp(cmd, "login") != 0) {
+        if (token == NULL || (user_id = extract_user_id_from_token(token)) == -1) {
+            LOG_ERROR("Invalid token from FD=%d", client_fd);
+            json_object_put(parsed_command);
+            return;
+        }
     }
 
-    char *saveptr;
-    char *cmd = strtok_r(args, " \t\r\n", &saveptr);
-    char *path;
+    MYSQL *conn = db_connect();
+    if (conn == NULL) {
+        LOG_ERROR("Database connection failed for FD=%d", client_fd);
+        json_object_put(parsed_command);
+        return;
+    }
 
-    if (cmd == NULL) {
-        LOG_WARNING("Empty command from FD=%d", client_fd);
-        handle_invalid(client_fd);
-    } else if (strcmp(cmd, "exit") == 0) {
-        LOG_INFO("Exit command received from FD=%d", client_fd);
-        const char *msg = "Exiting, goodbye!\n";
-        write(client_fd, msg, strlen(msg));
-        close(client_fd);
+    if (strcmp(cmd, "register") == 0) {
+        handle_register_request(client_fd, arg);
+    } else if (strcmp(cmd, "login") == 0) {
+        handle_login_request(client_fd, arg);
     } else if (strcmp(cmd, "cd") == 0) {
-        path = strtok_r(NULL, " \t\r\n", &saveptr);
-        LOG_DEBUG("CD command with path=%s from FD=%d", path, client_fd);
-        handle_cd(client_fd, path);
+        handle_cd(client_fd, args, user_id, conn);
     } else if (strcmp(cmd, "ls") == 0) {
-        LOG_DEBUG("LS command received from FD=%d", client_fd);
-        handle_ls(client_fd);
+        handle_ls(client_fd, user_id, conn);
     } else if (strcmp(cmd, "puts") == 0) {
-        path = strtok_r(NULL, " \t\r\n", &saveptr);
-        LOG_DEBUG("PUTS command with filename=%s from FD=%d", path, client_fd);
-        handle_puts(client_fd, path);
+        handle_puts(client_fd, args, user_id, conn);
     } else if (strcmp(cmd, "gets") == 0) {
-        path = strtok_r(NULL, " \t\r\n", &saveptr);
-        LOG_DEBUG("GETS command with filename=%s from FD=%d", path, client_fd);
-        handle_gets(client_fd, path);
-    } else if (strcmp(cmd, "remove") == 0) {
-        path = strtok_r(NULL, " \t\r\n", &saveptr);
-        LOG_DEBUG("REMOVE command with filename=%s from FD=%d", path, client_fd);
-        handle_remove(client_fd, path);
+        handle_gets(client_fd, args, user_id, conn);
+    } else if (strcmp(cmd, "rm") == 0) {
+        handle_remove(client_fd, args, user_id, conn);
     } else if (strcmp(cmd, "pwd") == 0) {
-        LOG_DEBUG("PWD command received from FD=%d", client_fd);
-        handle_pwd(client_fd);
+        handle_pwd(client_fd, user_id, conn);
     } else if (strcmp(cmd, "mkdir") == 0) {
-        path = strtok_r(NULL, " \t\r\n", &saveptr);
-        LOG_DEBUG("MKDIR command with dirname=%s from FD=%d", path, client_fd);
-        handle_mkdir(client_fd, path);
-    } else {
-        LOG_WARNING("Invalid command '%s' from FD=%d", cmd, client_fd);
-        handle_invalid(client_fd);
+        handle_mkdir(client_fd, args, user_id, conn);
     }
 
-    free(args);
+    json_object_put(parsed_command);
+    db_disconnect(conn);
 }
-
-/*========== 处理命令行输入的无效命令 ==========*/
-void handle_invalid(int client_fd) {
-    LOG_WARNING("Handling invalid command for FD=%d", client_fd);
-    const char *msg = "无效的或不支持的命令\n";
-    write(client_fd, msg, strlen(msg));
-    write(client_fd, END_OF_MESSAGE, strlen(END_OF_MESSAGE));
-}
-

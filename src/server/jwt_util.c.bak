@@ -1,0 +1,131 @@
+#include "jwt_util.h"
+#include "logger.h"
+#include "database.h"
+#include "config.h"
+#include <jwt.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <mysql/mysql.h>
+#include <errno.h>
+
+#define TOKEN_EXPIRATION_TIME 210000000000  // Token 有效期为 1 小时
+
+char* generate_token(const char *username, const char *secret_key) {
+    LOG_DEBUG("username: %s, secret_key: %s", username, secret_key);
+    jwt_t *jwt = NULL;
+    char *token = NULL;
+
+    if (jwt_new(&jwt) != 0) {
+        LOG_ERROR("生成 Token 失败: 无法创建 jwt 对象");
+        return NULL;
+    }
+
+    time_t now = time(NULL);
+    jwt_add_grant_int(jwt, "iat", now);
+    jwt_add_grant_int(jwt, "exp", now + TOKEN_EXPIRATION_TIME);
+    jwt_add_grant(jwt, "username", username);
+
+    LOG_DEBUG("before jwt_set_alg: secret_key: %s, key_len: %zu", secret_key, strlen(secret_key));
+    if (jwt_set_alg(jwt, JWT_ALG_HS256, (const unsigned char *)secret_key, (int)strlen(secret_key)) != 0) {
+        LOG_ERROR("设置算法失败");
+        jwt_free(jwt);
+        return NULL;
+    }
+    LOG_DEBUG("token: , secret_key: %s", token, secret_key);
+
+    token = jwt_encode_str(jwt);
+    if (token == NULL) {
+        LOG_ERROR("编码 Token 失败");
+    }
+
+    jwt_free(jwt);
+    LOG_DEBUG("token: %s", token);
+    return token;
+}
+
+int verify_token(const char *token, const char *secret_key) {
+    jwt_t *jwt = NULL;
+    if (jwt_decode(&jwt, token, (unsigned char *)secret_key, strlen(secret_key)) != 0) {
+        LOG_ERROR("验证 Token 失败: %s", strerror(errno));
+        return 0;  // 验证失败
+    }
+
+    time_t now = time(NULL);
+    int exp = jwt_get_grant_int(jwt, "exp");
+    jwt_free(jwt);
+
+    if (now > exp) {
+        LOG_ERROR("Token 已过期");
+        return 0;  // Token 已过期
+    }
+
+    return 1;  // 验证成功
+}
+
+int get_user_id_by_username(const char *username) {
+    MYSQL *conn = db_connect();
+    if (conn == NULL) {
+        LOG_ERROR("数据库连接失败");
+        return -1;
+    }
+
+    char query[256];
+    snprintf(query, sizeof(query), "SELECT id FROM users WHERE username='%s'", username);
+
+    if (mysql_query(conn, query)) {
+        LOG_ERROR("查询用户ID失败: %s", mysql_error(conn));
+        db_disconnect(conn);
+        return -1;
+    }
+
+    MYSQL_RES *res = mysql_store_result(conn);
+    if (res == NULL) {
+        LOG_ERROR("存储查询结果失败: %s", mysql_error(conn));
+        db_disconnect(conn);
+        return -1;
+    }
+
+    MYSQL_ROW row = mysql_fetch_row(res);
+    int user_id = -1;
+    if (row) {
+        user_id = atoi(row[0]);
+    }
+
+    mysql_free_result(res);
+    db_disconnect(conn);
+    return user_id;
+}
+
+int extract_user_id_from_token(const char *token, const char *secret_key) {
+    LOG_DEBUG("token:%s, secret_key: %s", token, secret_key);
+    jwt_t *jwt = NULL;
+    /*
+    int ret;
+    if ((ret = jwt_decode(&jwt, token, (unsigned char *)secret_key, (int)strlen(secret_key))) != 0) {
+        LOG_DEBUG("secret_key: %s, 长度:%zu", secret_key, strlen(secret_key));
+        LOG_ERROR("解码 Token 失败: %s", strerror(errno));
+        return -1;  // 解码失败
+    }
+    */
+    jwt_decode(&jwt, token, (const unsigned char *)secret_key, (int)strlen(secret_key));
+    LOG_DEBUG("token: %s, secret_key: %s, strlen: %zu", token, secret_key, strlen(secret_key));
+
+    const char *username = jwt_get_grant(jwt, "username");
+    if (username == NULL) {
+        LOG_ERROR("从 Token 中获取用户名失败");
+        jwt_free(jwt);
+        return -1;  // 无法获取用户名
+    }
+
+    LOG_DEBUG("从 Token 中提取的用户名: %s", username);
+    int user_id = get_user_id_by_username(username);
+    jwt_free(jwt);
+
+    if (user_id == -1) {
+        LOG_ERROR("获取用户 ID 失败");
+    }
+
+    return user_id;
+}
+

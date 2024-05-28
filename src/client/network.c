@@ -41,20 +41,3 @@ int connect_to_server(const char *server_ip, int server_port) {
     return sockfd;
 }
 
-void send_command(int sockfd, const char* command) {
-    char buffer[BUFFER_SIZE] = {0};
-
-    if (send(sockfd, command, strlen(command), 0) < 0) {
-        perror(ANSI_COLOR_RED "Failed to send data to server" ANSI_COLOR_RESET);
-        return;
-    }
-
-    if (set_nonblocking(sockfd) == -1) {
-        printf(ANSI_COLOR_RED "Failed to set non-blocking socket mode" ANSI_COLOR_RESET);
-        return;
-    }
-
-    // Process special commands like "gets" and "puts" differently
-    process_command(sockfd, command, buffer);
-}
-

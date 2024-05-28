@@ -8,9 +8,4 @@
 void handle_input(int client_fd);
 void process_command(int client_fd, const char *command);
 
-
-/*========== 扩展命令处理 ==========*/
-// 处理无效命令
-void handle_invalid(int client_fd);
-
 #endif

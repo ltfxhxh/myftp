@@ -1,0 +1,128 @@
+2024-05-28 10:16:41 [INFO] (src/client/client_main.c:36): client starting...
+2024-05-28 10:16:49 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjI2MDcsImV4cCI6MTcxNjg2NjIwNywic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.j5h5eoiYEQi7l3q_RuIVyjx5_Al0ZGwaq4T1UIKszJZhAw1v9npu1LxZhy2vt1PeBLDkimW8dMZHOrJ1qOi_fQ
+2024-05-28 10:16:49 [INFO] (src/client/client_main.c:109): 发送命令:ls
+2024-05-28 10:16:49 [DEBUG] (src/client/file_transfer.c:20): cmd=ls, local_filename=
+2024-05-28 10:16:49 [DEBUG] (src/client/file_transfer.c:316): 接收到的响应: [ { "filename": "xiaheng", "type": "d" }, { "filename": "heping", "type": "d" }, { "filename": "suyu", "type": "d" } ]
+.
+
+2024-05-28 10:16:49 [DEBUG] (src/client/file_transfer.c:332): JSON array length: 3
+2024-05-28 10:16:51 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjI2MDcsImV4cCI6MTcxNjg2NjIwNywic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.j5h5eoiYEQi7l3q_RuIVyjx5_Al0ZGwaq4T1UIKszJZhAw1v9npu1LxZhy2vt1PeBLDkimW8dMZHOrJ1qOi_fQ
+2024-05-28 10:16:51 [INFO] (src/client/client_main.c:109): 发送命令:cd
+2024-05-28 10:16:51 [DEBUG] (src/client/file_transfer.c:20): cmd=cd, local_filename=xiaheng
+2024-05-28 10:16:51 [DEBUG] (src/client/file_transfer.c:264): 处理cd响应
+2024-05-28 10:16:51 [DEBUG] (src/client/file_transfer.c:273): 接收到的响应: { "success": true, "new_path": "\/xiaheng" }
+.
+
+2024-05-28 10:16:51 [DEBUG] (src/client/file_transfer.c:287): 解析到的新路径: /xiaheng
+2024-05-28 10:16:54 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjI2MDcsImV4cCI6MTcxNjg2NjIwNywic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.j5h5eoiYEQi7l3q_RuIVyjx5_Al0ZGwaq4T1UIKszJZhAw1v9npu1LxZhy2vt1PeBLDkimW8dMZHOrJ1qOi_fQ
+2024-05-28 10:16:54 [INFO] (src/client/client_main.c:109): 发送命令:pwd
+2024-05-28 10:16:54 [DEBUG] (src/client/file_transfer.c:20): cmd=pwd, local_filename=
+2024-05-28 10:16:57 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjI2MDcsImV4cCI6MTcxNjg2NjIwNywic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.j5h5eoiYEQi7l3q_RuIVyjx5_Al0ZGwaq4T1UIKszJZhAw1v9npu1LxZhy2vt1PeBLDkimW8dMZHOrJ1qOi_fQ
+2024-05-28 10:16:57 [INFO] (src/client/client_main.c:109): 发送命令:ls
+2024-05-28 10:16:57 [DEBUG] (src/client/file_transfer.c:20): cmd=ls, local_filename=
+2024-05-28 10:16:57 [DEBUG] (src/client/file_transfer.c:316): 接收到的响应: [ ]
+.
+
+2024-05-28 10:16:57 [DEBUG] (src/client/file_transfer.c:332): JSON array length: 0
+2024-05-28 10:16:59 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjI2MDcsImV4cCI6MTcxNjg2NjIwNywic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.j5h5eoiYEQi7l3q_RuIVyjx5_Al0ZGwaq4T1UIKszJZhAw1v9npu1LxZhy2vt1PeBLDkimW8dMZHOrJ1qOi_fQ
+2024-05-28 10:16:59 [INFO] (src/client/client_main.c:109): 发送命令:cd
+2024-05-28 10:16:59 [DEBUG] (src/client/file_transfer.c:20): cmd=cd, local_filename=..
+2024-05-28 10:16:59 [DEBUG] (src/client/file_transfer.c:264): 处理cd响应
+2024-05-28 10:16:59 [DEBUG] (src/client/file_transfer.c:273): 接收到的响应: { "success": true, "new_path": "\/" }
+.
+
+2024-05-28 10:16:59 [DEBUG] (src/client/file_transfer.c:287): 解析到的新路径: /
+2024-05-28 10:17:03 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjI2MDcsImV4cCI6MTcxNjg2NjIwNywic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.j5h5eoiYEQi7l3q_RuIVyjx5_Al0ZGwaq4T1UIKszJZhAw1v9npu1LxZhy2vt1PeBLDkimW8dMZHOrJ1qOi_fQ
+2024-05-28 10:17:03 [INFO] (src/client/client_main.c:109): 发送命令:ls
+2024-05-28 10:17:03 [DEBUG] (src/client/file_transfer.c:20): cmd=ls, local_filename=
+2024-05-28 10:17:03 [DEBUG] (src/client/file_transfer.c:316): 接收到的响应: [ { "filename": "xiaheng", "type": "d" }, { "filename": "heping", "type": "d" }, { "filename": "suyu", "type": "d" } ]
+.
+
+2024-05-28 10:17:03 [DEBUG] (src/client/file_transfer.c:332): JSON array length: 3
+2024-05-28 10:17:14 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjI2MDcsImV4cCI6MTcxNjg2NjIwNywic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.j5h5eoiYEQi7l3q_RuIVyjx5_Al0ZGwaq4T1UIKszJZhAw1v9npu1LxZhy2vt1PeBLDkimW8dMZHOrJ1qOi_fQ
+2024-05-28 10:17:14 [INFO] (src/client/client_main.c:109): 发送命令:ls
+2024-05-28 10:17:14 [DEBUG] (src/client/file_transfer.c:20): cmd=ls, local_filename=
+2024-05-28 10:17:14 [DEBUG] (src/client/file_transfer.c:316): 接收到的响应: [ { "filename": "xiaheng", "type": "d" }, { "filename": "heping", "type": "d" }, { "filename": "suyu", "type": "d" } ]
+.
+
+2024-05-28 10:17:14 [DEBUG] (src/client/file_transfer.c:332): JSON array length: 3
+2024-05-28 10:17:16 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjI2MDcsImV4cCI6MTcxNjg2NjIwNywic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.j5h5eoiYEQi7l3q_RuIVyjx5_Al0ZGwaq4T1UIKszJZhAw1v9npu1LxZhy2vt1PeBLDkimW8dMZHOrJ1qOi_fQ
+2024-05-28 10:17:16 [INFO] (src/client/client_main.c:109): 发送命令:rm
+2024-05-28 10:17:16 [DEBUG] (src/client/file_transfer.c:20): cmd=rm, local_filename=suyu
+2024-05-28 10:23:34 [INFO] (src/client/client_main.c:36): client starting...
+2024-05-28 10:23:41 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjMwMTksImV4cCI6MTcxNjg2NjYxOSwic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.Jzv1NnrIrYYWdGwZgOgIEhvD7oMixwPm2lNEQrDBoN4fv17_Zomvnml6bHqhd6rjhKoSWSpnSsH3oDR-ckGEVw
+2024-05-28 10:23:41 [INFO] (src/client/client_main.c:109): 发送命令:ls
+2024-05-28 10:23:41 [DEBUG] (src/client/file_transfer.c:20): cmd=ls, local_filename=
+2024-05-28 10:23:41 [DEBUG] (src/client/file_transfer.c:316): 接收到的响应: [ { "filename": "xiaheng", "type": "d" }, { "filename": "heping", "type": "d" }, { "filename": "suyu", "type": "d" } ]
+.
+
+2024-05-28 10:23:41 [DEBUG] (src/client/file_transfer.c:332): JSON array length: 3
+2024-05-28 10:23:44 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjMwMTksImV4cCI6MTcxNjg2NjYxOSwic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.Jzv1NnrIrYYWdGwZgOgIEhvD7oMixwPm2lNEQrDBoN4fv17_Zomvnml6bHqhd6rjhKoSWSpnSsH3oDR-ckGEVw
+2024-05-28 10:23:44 [INFO] (src/client/client_main.c:109): 发送命令:cd
+2024-05-28 10:23:44 [DEBUG] (src/client/file_transfer.c:20): cmd=cd, local_filename=xiaheng
+2024-05-28 10:23:44 [DEBUG] (src/client/file_transfer.c:264): 处理cd响应
+2024-05-28 10:23:44 [DEBUG] (src/client/file_transfer.c:273): 接收到的响应: { "success": true, "new_path": "\/xiaheng" }
+.
+
+2024-05-28 10:23:44 [DEBUG] (src/client/file_transfer.c:287): 解析到的新路径: /xiaheng
+2024-05-28 10:23:47 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjMwMTksImV4cCI6MTcxNjg2NjYxOSwic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.Jzv1NnrIrYYWdGwZgOgIEhvD7oMixwPm2lNEQrDBoN4fv17_Zomvnml6bHqhd6rjhKoSWSpnSsH3oDR-ckGEVw
+2024-05-28 10:23:47 [INFO] (src/client/client_main.c:109): 发送命令:cd
+2024-05-28 10:23:47 [DEBUG] (src/client/file_transfer.c:20): cmd=cd, local_filename=..
+2024-05-28 10:23:47 [DEBUG] (src/client/file_transfer.c:264): 处理cd响应
+2024-05-28 10:23:47 [DEBUG] (src/client/file_transfer.c:273): 接收到的响应: { "success": true, "new_path": "\/" }
+.
+
+2024-05-28 10:23:47 [DEBUG] (src/client/file_transfer.c:287): 解析到的新路径: /
+2024-05-28 10:23:54 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjMwMTksImV4cCI6MTcxNjg2NjYxOSwic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.Jzv1NnrIrYYWdGwZgOgIEhvD7oMixwPm2lNEQrDBoN4fv17_Zomvnml6bHqhd6rjhKoSWSpnSsH3oDR-ckGEVw
+2024-05-28 10:23:54 [INFO] (src/client/client_main.c:109): 发送命令:rm
+2024-05-28 10:23:54 [DEBUG] (src/client/file_transfer.c:20): cmd=rm, local_filename=suyu
+2024-05-28 10:23:56 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjMwMTksImV4cCI6MTcxNjg2NjYxOSwic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.Jzv1NnrIrYYWdGwZgOgIEhvD7oMixwPm2lNEQrDBoN4fv17_Zomvnml6bHqhd6rjhKoSWSpnSsH3oDR-ckGEVw
+2024-05-28 10:23:56 [INFO] (src/client/client_main.c:109): 发送命令:ls
+2024-05-28 10:23:56 [DEBUG] (src/client/file_transfer.c:20): cmd=ls, local_filename=
+2024-05-28 10:23:56 [DEBUG] (src/client/file_transfer.c:316): 接收到的响应: [ { "filename": "xiaheng", "type": "d" }, { "filename": "heping", "type": "d" } ]
+.
+
+2024-05-28 10:23:56 [DEBUG] (src/client/file_transfer.c:332): JSON array length: 2
+2024-05-28 10:24:07 [INFO] (src/client/client_main.c:117): client shut down.
+2024-05-28 10:24:11 [INFO] (src/client/client_main.c:36): client starting...
+2024-05-28 10:24:32 [INFO] (src/client/client_main.c:36): client starting...
+2024-05-28 10:25:05 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjMwOTksImV4cCI6MTcxNjg2NjY5OSwic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.p6gdQqqIZxl4Ze1qzCNcVfWrAzGQaKdjHJvCLsEVzPh1TxVWYc2FPsi2YKk8FBDDGIOvfmCq4ofWvFyP7i1fuw
+2024-05-28 10:25:05 [INFO] (src/client/client_main.c:109): 发送命令:ls
+2024-05-28 10:25:05 [DEBUG] (src/client/file_transfer.c:20): cmd=ls, local_filename=
+2024-05-28 10:25:05 [DEBUG] (src/client/file_transfer.c:316): 接收到的响应: [ { "filename": "xiaheng", "type": "d" }, { "filename": "heping", "type": "d" } ]
+.
+
+2024-05-28 10:25:05 [DEBUG] (src/client/file_transfer.c:332): JSON array length: 2
+2024-05-28 10:25:10 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjMwOTksImV4cCI6MTcxNjg2NjY5OSwic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.p6gdQqqIZxl4Ze1qzCNcVfWrAzGQaKdjHJvCLsEVzPh1TxVWYc2FPsi2YKk8FBDDGIOvfmCq4ofWvFyP7i1fuw
+2024-05-28 10:25:10 [INFO] (src/client/client_main.c:109): 发送命令:cd
+2024-05-28 10:25:10 [DEBUG] (src/client/file_transfer.c:20): cmd=cd, local_filename=xiaheng
+2024-05-28 10:25:10 [DEBUG] (src/client/file_transfer.c:264): 处理cd响应
+2024-05-28 10:25:10 [DEBUG] (src/client/file_transfer.c:273): 接收到的响应: { "success": true, "new_path": "\/xiaheng" }
+.
+
+2024-05-28 10:25:10 [DEBUG] (src/client/file_transfer.c:287): 解析到的新路径: /xiaheng
+2024-05-28 10:25:13 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjMwOTksImV4cCI6MTcxNjg2NjY5OSwic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.p6gdQqqIZxl4Ze1qzCNcVfWrAzGQaKdjHJvCLsEVzPh1TxVWYc2FPsi2YKk8FBDDGIOvfmCq4ofWvFyP7i1fuw
+2024-05-28 10:25:13 [INFO] (src/client/client_main.c:109): 发送命令:pwd
+2024-05-28 10:25:13 [DEBUG] (src/client/file_transfer.c:20): cmd=pwd, local_filename=
+2024-05-28 10:25:15 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjMwOTksImV4cCI6MTcxNjg2NjY5OSwic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.p6gdQqqIZxl4Ze1qzCNcVfWrAzGQaKdjHJvCLsEVzPh1TxVWYc2FPsi2YKk8FBDDGIOvfmCq4ofWvFyP7i1fuw
+2024-05-28 10:25:15 [INFO] (src/client/client_main.c:109): 发送命令:cd
+2024-05-28 10:25:15 [DEBUG] (src/client/file_transfer.c:20): cmd=cd, local_filename=..
+2024-05-28 10:25:15 [DEBUG] (src/client/file_transfer.c:264): 处理cd响应
+2024-05-28 10:25:15 [DEBUG] (src/client/file_transfer.c:273): 接收到的响应: { "success": true, "new_path": "\/" }
+.
+
+2024-05-28 10:25:15 [DEBUG] (src/client/file_transfer.c:287): 解析到的新路径: /
+2024-05-28 10:25:17 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjMwOTksImV4cCI6MTcxNjg2NjY5OSwic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.p6gdQqqIZxl4Ze1qzCNcVfWrAzGQaKdjHJvCLsEVzPh1TxVWYc2FPsi2YKk8FBDDGIOvfmCq4ofWvFyP7i1fuw
+2024-05-28 10:25:17 [INFO] (src/client/client_main.c:109): 发送命令:pwd
+2024-05-28 10:25:17 [DEBUG] (src/client/file_transfer.c:20): cmd=pwd, local_filename=
+2024-05-28 10:25:22 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjMwOTksImV4cCI6MTcxNjg2NjY5OSwic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.p6gdQqqIZxl4Ze1qzCNcVfWrAzGQaKdjHJvCLsEVzPh1TxVWYc2FPsi2YKk8FBDDGIOvfmCq4ofWvFyP7i1fuw
+2024-05-28 10:25:22 [INFO] (src/client/client_main.c:109): 发送命令:rm
+2024-05-28 10:25:22 [DEBUG] (src/client/file_transfer.c:20): cmd=rm, local_filename=heping
+2024-05-28 10:25:24 [DEBUG] (src/client/client_main.c:24): 加入token:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY4NjMwOTksImV4cCI6MTcxNjg2NjY5OSwic3ViIjoieGlhaGVuZyIsImlzcyI6Imlzc3VlciIsImF1ZCI6ImF1ZGllbmNlIn0.p6gdQqqIZxl4Ze1qzCNcVfWrAzGQaKdjHJvCLsEVzPh1TxVWYc2FPsi2YKk8FBDDGIOvfmCq4ofWvFyP7i1fuw
+2024-05-28 10:25:24 [INFO] (src/client/client_main.c:109): 发送命令:ls
+2024-05-28 10:25:24 [DEBUG] (src/client/file_transfer.c:20): cmd=ls, local_filename=
+2024-05-28 10:25:24 [DEBUG] (src/client/file_transfer.c:316): 接收到的响应: [ { "filename": "xiaheng", "type": "d" } ]
+.
+
+2024-05-28 10:25:24 [DEBUG] (src/client/file_transfer.c:332): JSON array length: 1
+2024-05-28 10:25:34 [INFO] (src/client/client_main.c:117): client shut down.

@@ -1,6 +1,6 @@
-// login.c
 #include "login.h"
 #include <openssl/sha.h>
+#include <json-c/json.h>
 
 void hash_password(const char *password, char *hashed_password) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
@@ -44,12 +44,18 @@ void handle_register(int sockfd) {
     hash_password(password, hashed_password);
 
     // 构造json格式请求
-    char request[BUFFER_SIZE];
-    snprintf(request, BUFFER_SIZE, "{\"action\": \"register\", \"username\": \"%s\", \"password\": \"%s\"}", username, hashed_password);
+    struct json_object *json_request = json_object_new_object();
+    json_object_object_add(json_request, "command", json_object_new_string("register"));
+    struct json_object *args = json_object_new_object();
+    json_object_object_add(args, "username", json_object_new_string(username));
+    json_object_object_add(args, "password", json_object_new_string(hashed_password));
+    json_object_object_add(json_request, "args", args);
+    const char *request = json_object_to_json_string(json_request);
 
     // 向服务器发送请求
     if (send(sockfd, request, strlen(request), 0) < 0) {
         perror(ANSI_COLOR_RED "Failed to send register request" ANSI_COLOR_RESET);
+        json_object_put(json_request); // 释放 JSON 对象
         return;
     }
 
@@ -58,20 +64,27 @@ void handle_register(int sockfd) {
     int bytes_received = recv(sockfd, response, BUFFER_SIZE, 0);
     if (bytes_received < 0) {
         perror(ANSI_COLOR_RED "Failed to receive server response" ANSI_COLOR_RESET);
+        json_object_put(json_request); // 释放 JSON 对象
         return;
     }
 
     response[bytes_received] = '\0';
 
     // 处理服务器回复
-    if (strcmp(response, "success") == 0) {
+    struct json_object *parsed_response = json_tokener_parse(response);
+    int success = json_object_get_boolean(json_object_object_get(parsed_response, "success"));
+    if (success) {
         printf(ANSI_COLOR_GREEN "Registration successful!\n" ANSI_COLOR_RESET);
     } else {
-        printf(ANSI_COLOR_RED "Registration failed: %s\n" ANSI_COLOR_RESET, response);
+        const char *message = json_object_get_string(json_object_object_get(parsed_response, "message"));
+        printf(ANSI_COLOR_RED "Registration failed: %s\n" ANSI_COLOR_RESET, message);
     }
+
+    json_object_put(parsed_response); // 释放 JSON 对象
+    json_object_put(json_request); // 释放 JSON 对象
 }
 
-int handle_login(int sockfd) {
+int handle_login(int sockfd, char *token, char *usr) {
     char username[BUFFER_SIZE];
     char password[BUFFER_SIZE];
 
@@ -88,12 +101,18 @@ int handle_login(int sockfd) {
     hash_password(password, hashed_password);
 
     // 构造json格式请求
-    char request[BUFFER_SIZE];
-    snprintf(request, BUFFER_SIZE, "{\"action\": \"login\", \"username\": \"%s\", \"password\": \"%s\"}", username, hashed_password);
+    struct json_object *json_request = json_object_new_object();
+    json_object_object_add(json_request, "command", json_object_new_string("login"));
+    struct json_object *args = json_object_new_object();
+    json_object_object_add(args, "username", json_object_new_string(username));
+    json_object_object_add(args, "password", json_object_new_string(hashed_password));
+    json_object_object_add(json_request, "args", args);
+    const char *request = json_object_to_json_string(json_request);
 
     // 发送登录请求
     if (send(sockfd, request, strlen(request), 0) < 0) {
         perror(ANSI_COLOR_RED "Failed to send login request" ANSI_COLOR_RESET);
+        json_object_put(json_request); // 释放 JSON 对象
         return 0;
     }
 
@@ -102,17 +121,30 @@ int handle_login(int sockfd) {
     int bytes_received = recv(sockfd, response, BUFFER_SIZE, 0);
     if (bytes_received < 0) {
         perror(ANSI_COLOR_RED "Failed to receive server response" ANSI_COLOR_RESET);
+        json_object_put(json_request); // 释放 JSON 对象
         return 0;
     }
 
     response[bytes_received] = '\0';
 
     // 处理回复 
-    if (strcmp(response, "success") == 0) {
+    struct json_object *parsed_response = json_tokener_parse(response);
+    int success = json_object_get_boolean(json_object_object_get(parsed_response, "success"));
+    if (success) {
         printf(ANSI_COLOR_GREEN "Login successful!\n" ANSI_COLOR_RESET);
+        const char *received_token = json_object_get_string(json_object_object_get(parsed_response, "token"));
+        strncpy(token, received_token, BUFFER_SIZE);
+        strncpy(usr, username, BUFFER_SIZE);
+        token[BUFFER_SIZE - 1] = '\0'; // 确保token字符串以空字符结尾
+        json_object_put(parsed_response); // 释放 JSON 对象
+        json_object_put(json_request); // 释放 JSON 对象
         return 1;
     } else {
-        printf(ANSI_COLOR_RED "Login failed: %s\n" ANSI_COLOR_RESET, response);
+        const char *message = json_object_get_string(json_object_object_get(parsed_response, "message"));
+        printf(ANSI_COLOR_RED "Login failed: %s\n" ANSI_COLOR_RESET, message);
+        json_object_put(parsed_response); // 释放 JSON 对象
+        json_object_put(json_request); // 释放 JSON 对象
         return 0;
     }
 }
+

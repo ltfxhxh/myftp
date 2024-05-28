@@ -1,7 +1,8 @@
 #include "auth_handler.h"
 #include "database.h"
 #include "logger.h"
-#include <json-c/json.h>
+#include "jwt_util.h"
+#include "config.h"
 #include <openssl/sha.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,15 +37,13 @@ void custom_hash_password(const char *password, const char *salt, char *hashed_p
     hashed_password[HASH_LENGTH] = '\0';
 }
 
-void handle_register_request(int client_fd, const char *request) {
-    json_object *parsed_request = json_tokener_parse(request);
-    const char *username = json_object_get_string(json_object_object_get(parsed_request, "username"));
-    const char *password = json_object_get_string(json_object_object_get(parsed_request, "password"));
+void handle_register_request(int client_fd, json_object *args) {
+    const char *username = json_object_get_string(json_object_object_get(args, "username"));
+    const char *password = json_object_get_string(json_object_object_get(args, "password"));
 
     MYSQL *conn = db_connect();
     if (conn == NULL) {
         send(client_fd, "error: database connection failed", strlen("error: database connection failed"), 0);
-        json_object_put(parsed_request);
         return;
     }
 
@@ -52,7 +51,6 @@ void handle_register_request(int client_fd, const char *request) {
         LOG_WARNING("Username already exists: %s", username);
         send(client_fd, "error: username already exists", strlen("error: username already exists"), 0);
         db_disconnect(conn);
-        json_object_put(parsed_request);
         return;
     }
 
@@ -71,32 +69,54 @@ void handle_register_request(int client_fd, const char *request) {
     }
 
     db_disconnect(conn);
-    json_object_put(parsed_request);
 }
 
-void handle_login_request(int client_fd, const char *request) {
-    json_object *parsed_request = json_tokener_parse(request);
-    const char *username = json_object_get_string(json_object_object_get(parsed_request, "username"));
-    const char *password = json_object_get_string(json_object_object_get(parsed_request, "password"));
+void handle_login_request(int client_fd, json_object *args) {
+    const char *username = json_object_get_string(json_object_object_get(args, "username"));
+    const char *password = json_object_get_string(json_object_object_get(args, "password"));
 
     MYSQL *conn = db_connect();
     if (conn == NULL) {
         send(client_fd, "error: database connection failed", strlen("error: database connection failed"), 0);
-        json_object_put(parsed_request);
         return;
     }
 
     char stored_hash[HASH_LENGTH + 1];
     char salt[SALT_LENGTH];
     char pwd[256];
+    int user_id;
 
-    if (get_user(conn, username, stored_hash, salt, pwd) == 0) {
+    if (get_user(conn, username, stored_hash, salt, pwd, &user_id) == 0) {
         char hashed_password[HASH_LENGTH + 1];
         custom_hash_password(password, salt, hashed_password);
 
         if (strcmp(hashed_password, stored_hash) == 0) {
             LOG_INFO("User logged in successfully: %s", username);
-            send(client_fd, "success", strlen("success"), 0);
+
+            // 重置当前路径为根目录
+            if (update_user_current_path(conn, user_id, "/") != 0) {
+                LOG_ERROR("Failed to reset user current path to root: %s", username);
+                send(client_fd, "error: failed to reset user current path", strlen("error: failed to reset user current path"), 0);
+                db_disconnect(conn);
+                return;
+            }
+
+            // 生成 token
+            char *token = generate_token(username);
+            if (token) {
+                // 构造 JSON 响应
+                json_object *response = json_object_new_object();
+                json_object_object_add(response, "success", json_object_new_boolean(1));
+                json_object_object_add(response, "token", json_object_new_string(token));
+
+                // 发送响应
+                const char *response_str = json_object_to_json_string(response);
+                send(client_fd, response_str, strlen(response_str), 0);
+                json_object_put(response);
+                free(token);
+            } else {
+                send(client_fd, "error: failed to generate token", strlen("error: failed to generate token"), 0);
+            }
         } else {
             LOG_WARNING("Incorrect password for user: %s", username);
             send(client_fd, "error: incorrect password", strlen("error: incorrect password"), 0);
@@ -107,6 +127,13 @@ void handle_login_request(int client_fd, const char *request) {
     }
 
     db_disconnect(conn);
-    json_object_put(parsed_request);
+}
+
+int validate_token(const char *token) {
+    return verify_token(token);
+}
+
+int get_user_id_from_token(const char *token) {
+    return extract_user_id_from_token(token);
 }
 

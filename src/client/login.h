@@ -15,7 +15,7 @@
 void handle_register(int sockfd);
 
 // 登录功能处理函数
-int handle_login(int sockfd);
+int handle_login(int sockfd, char *token, char *usr);
 
 // 辅助函数，例如密码哈希函数
 void hash_password(const char *password, char *hashed_password);
